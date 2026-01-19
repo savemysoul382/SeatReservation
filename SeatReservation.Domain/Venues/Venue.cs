@@ -2,7 +2,7 @@
 
 using CSharpFunctionalExtensions;
 
-namespace SeatReservation.Domain.Venue;
+namespace SeatReservation.Domain.Venues;
 
 public class Venue
 {

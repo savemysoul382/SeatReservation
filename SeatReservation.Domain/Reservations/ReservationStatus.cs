@@ -1,6 +1,6 @@
 ﻿// SeatReservation.Domain
 
-namespace SeatReservation.Domain.Reservation;
+namespace SeatReservation.Domain.Reservations;
 
 public enum ReservationStatus
 {
