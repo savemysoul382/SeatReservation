@@ -7,6 +7,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeatReservationService", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeatReservation.Domain", "SeatReservation.Domain\SeatReservation.Domain.csproj", "{1EF7B8DA-2FBE-4270-A208-ACEEC6FCE61C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{22F72E50-B86A-48A6-4252-6FDC98C636E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{754FC069-D67B-A9D7-50A1-8D1CA196D8F1}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeatReservation.Infrastructure.Postgres", "SeatReservation.Infrastructure.Postgres\SeatReservation.Infrastructure.Postgres.csproj", "{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +31,14 @@ Global
 		{1EF7B8DA-2FBE-4270-A208-ACEEC6FCE61C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EF7B8DA-2FBE-4270-A208-ACEEC6FCE61C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EF7B8DA-2FBE-4270-A208-ACEEC6FCE61C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22F72E50-B86A-48A6-4252-6FDC98C636E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22F72E50-B86A-48A6-4252-6FDC98C636E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22F72E50-B86A-48A6-4252-6FDC98C636E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22F72E50-B86A-48A6-4252-6FDC98C636E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

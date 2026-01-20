@@ -1,6 +1,7 @@
 ﻿// SeatReservation.Domain
 
 using CSharpFunctionalExtensions;
+using Shared;
 
 namespace SeatReservation.Domain.Venues;
 
@@ -17,7 +18,6 @@ public class Seat
 
     // можно не указывать связь, но она есть. Место не может существовать вне зала
     // public Venue Venue { get; private set; } = null!;
-
     public int RowNumber { get; private set; }
 
     public int SeatNumber { get; private set; }

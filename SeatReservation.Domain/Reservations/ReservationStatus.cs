@@ -4,7 +4,18 @@ namespace SeatReservation.Domain.Reservations;
 
 public enum ReservationStatus
 {
-    Pending,
-    Confirmed,
-    Canceled
+    /// <summary>
+    /// Ожидает подтверждения
+    /// </summary>
+    PENDING,
+
+    /// <summary>
+    /// Подтверждено
+    /// </summary>
+    CONFIRMED,
+
+    /// <summary>
+    /// Отменено
+    /// </summary>
+    CANCELED,
 }

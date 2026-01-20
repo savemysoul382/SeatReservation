@@ -13,7 +13,10 @@ public class ReservationSeat
     }
 
     public Guid Id { get; set; }
+
     public Reservation Reservation { get; private set; }
+
     public Guid SeatId { get; private set; }
+
     public DateTime ReservedAt { get; set; }
 }

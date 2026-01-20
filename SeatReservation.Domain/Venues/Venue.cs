@@ -1,12 +1,13 @@
 ﻿// SeatReservation.Domain
 
 using CSharpFunctionalExtensions;
+using Shared;
 
 namespace SeatReservation.Domain.Venues;
 
 public class Venue
 {
-    private List<Seat> _seats = new List<Seat>();
+    private readonly List<Seat> _seats = new List<Seat>();
 
     public Venue(Guid id, string name, int seatsLimit, IEnumerable<Seat> seats)
     {
@@ -28,12 +29,13 @@ public class Venue
 
     public UnitResult<Error> AddSeat(Seat seat)
     {
-        if (this._seats.Count >= SeatsLimit)
+        if (SeatsCount >= SeatsLimit)
         {
-            return UnitResult.Failure<Error>(Error("Max seats count exceeded"));
+            return Error.Conflict("venue.seats.limit", "The number of places is limited");
         }
 
-        this._seats.Add(seat);
+        _seats.Add(item: seat);
+
         return UnitResult.Success<Error>();
     }
 

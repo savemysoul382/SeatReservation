@@ -10,8 +10,10 @@ public class EventDetails
         Description = description;
     }
 
-    // EventId будет и primary key и foreign key к Event. id заполниться автоматически в EF core из-за связи 
+    // EventId будет и primary key и foreign key к Event. id заполниться автоматически в EF core из-за связи
     public Guid EventId { get; } = Guid.Empty;
+
     public int Capacity { get; private set; }
+
     public string Description { get; private set; }
 }
