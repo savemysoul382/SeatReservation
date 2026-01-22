@@ -4,14 +4,20 @@ namespace SeatReservation.Domain.Events;
 
 public class EventDetails
 {
-    public EventDetails(Guid eventId, int capacity, string description)
+    public EventDetails(int capacity, string description)
     {
         Capacity = capacity;
         Description = description;
     }
 
+
+    // EF Core ctor
+    private EventDetails()
+    {
+    }
+
     // EventId будет и primary key и foreign key к Event. id заполниться автоматически в EF core из-за связи
-    public Guid EventId { get; } = Guid.Empty;
+    public EventId EventId { get; }
 
     public int Capacity { get; private set; }
 

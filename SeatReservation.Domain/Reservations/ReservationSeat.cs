@@ -2,9 +2,11 @@
 
 namespace SeatReservation.Domain.Reservations;
 
+public record ReservationSeatId(Guid Value);
+
 public class ReservationSeat
 {
-    public ReservationSeat(Guid id, Reservation reservation, Guid seatId, DateTime reservedAt)
+    public ReservationSeat(ReservationSeatId id, Reservation reservation, Guid seatId, DateTime reservedAt)
     {
         Id = id;
         Reservation = reservation;
@@ -12,7 +14,12 @@ public class ReservationSeat
         ReservedAt = reservedAt;
     }
 
-    public Guid Id { get; set; }
+    // EF Core ctor
+    private ReservationSeat()
+    {
+    }
+
+    public ReservationSeatId Id { get; set; }
 
     public Reservation Reservation { get; private set; }
 

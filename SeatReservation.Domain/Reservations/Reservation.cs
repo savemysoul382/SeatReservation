@@ -2,11 +2,13 @@
 
 namespace SeatReservation.Domain.Reservations;
 
+public record ReservationId(Guid Value);
+
 public class Reservation
 {
     private readonly List<ReservationSeat> _reservedSeats;
 
-    public Reservation(Guid id, Guid eventId, Guid userId, IEnumerable<Guid> seatIds)
+    public Reservation(ReservationId id, Guid eventId, Guid userId, IEnumerable<Guid> seatIds)
     {
         Id = id;
         EventId = eventId;
@@ -14,11 +16,16 @@ public class Reservation
         Status = ReservationStatus.PENDING;
         CreatedAt = DateTime.UtcNow;
 
-        List<ReservationSeat> reservationSeats = seatIds.Select(seatId => new ReservationSeat(Guid.NewGuid(), this, seatId, DateTime.UtcNow)).ToList();
+        List<ReservationSeat> reservationSeats = seatIds.Select(seatId => new ReservationSeat(new ReservationSeatId(Guid.NewGuid()), this, seatId, DateTime.UtcNow)).ToList();
         _reservedSeats = reservationSeats;
     }
 
-    public Guid Id { get; private set; }
+    // EF Core ctor
+    private Reservation()
+    {
+    }
+
+    public ReservationId Id { get; private set; }
 
     public Guid EventId { get; private set; }
 

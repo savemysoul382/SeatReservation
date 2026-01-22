@@ -5,11 +5,13 @@ using Shared;
 
 namespace SeatReservation.Domain.Venues;
 
+public record VenueId(Guid Value);
+
 public class Venue
 {
-    private readonly List<Seat> _seats = new List<Seat>();
+    private readonly List<Seat> _seats = [];
 
-    public Venue(Guid id, string name, int seatsLimit, IEnumerable<Seat> seats)
+    public Venue(VenueId id, VenueName name, int seatsLimit, IEnumerable<Seat> seats)
     {
         Id = id;
         Name = name;
@@ -17,9 +19,14 @@ public class Venue
         this._seats = seats.ToList();
     }
 
-    public Guid Id { get; set; }
+    // EF Core ctor
+    private Venue()
+    {
+    }
 
-    public string Name { get; private set; }
+    public VenueId Id { get; private set; } = null!;
+
+    public VenueName Name { get; private set; } = null!;
 
     public int SeatsLimit { get; private set; }
 

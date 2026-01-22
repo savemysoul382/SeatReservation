@@ -2,9 +2,16 @@
 
 namespace SeatReservation.Domain.Events;
 
+public record EventId(Guid Value);
+
 public class Event
 {
-    public Event(Guid id, Guid venueId, EventDetails details, string name, DateTime eventDate)
+    // EF Core ctor
+    private Event()
+    {
+    }
+
+    public Event(EventId id, Guid venueId, EventDetails details, string name, DateTime eventDate)
     {
         Id = id;
         VenueId = venueId;
@@ -13,10 +20,10 @@ public class Event
         EventDate = eventDate;
     }
 
-    public Guid Id { get; private set; }
+    public EventId Id { get; private set; }
 
     // навигационное свойство
-    public EventDetails Details { get; set; }
+    public EventDetails Details { get; set; } = null!;
 
     public Guid VenueId { get; private set; }
 

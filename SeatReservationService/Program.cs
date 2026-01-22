@@ -1,23 +1,49 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.EntityFrameworkCore;
+using SeatReservation.Domain;
+using SeatReservation.Infrastructure.Postgres;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<ReservationServiceDbContext>(_ =>
+    new ReservationServiceDbContext(builder.Configuration.GetConnectionString("ReservationServiceDb")!));
+
 builder.Services.AddControllers();
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(op => op.SwaggerEndpoint("/openapi/v1.json", "AuthService"));
 }
 
-app.UseHttpsRedirection();
+app.MapPost(
+    "/users",
+    async (ReservationServiceDbContext dbContext) =>
+    {
+        var socials = new SocialNetwork()
+        {
+            Link = "Test", Name = "Test",
+        };
 
-app.UseAuthorization();
+        await dbContext.AddAsync(new User()
+        {
+            Details = new Details()
+            {
+                Description = "Test", FIO = "Test", Socials = [socials],
+            },
+        });
+        await dbContext.SaveChangesAsync();
+    });
 
-app.MapControllers();
-
+// app.MapGet(
+//   "/users",
+//   async (ReservationServiceDbContext dbContext) =>
+//   {
+//       await dbContext.Set<User>().ToListAsync();
+//   });
+// app.UseHttpsRedirection();
+// app.UseAuthorization();
+// app.MapControllers();
 app.Run();

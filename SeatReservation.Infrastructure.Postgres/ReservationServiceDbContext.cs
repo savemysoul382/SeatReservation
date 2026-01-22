@@ -3,8 +3,6 @@ using SeatReservation.Domain.Venues;
 
 namespace SeatReservation.Infrastructure.Postgres
 {
-    public record VenueDto(Guid Id, string Name);
-
     public class ReservationServiceDbContext : DbContext
     {
         private readonly string _connectionString;
@@ -16,9 +14,13 @@ namespace SeatReservation.Infrastructure.Postgres
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder: optionsBuilder);
-
             optionsBuilder.UseNpgsql(connectionString: _connectionString);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ReservationServiceDbContext).Assembly);
+            modelBuilder.Entity<Venue>();
         }
 
         public DbSet<Venue> Venues => Set<Venue>();
