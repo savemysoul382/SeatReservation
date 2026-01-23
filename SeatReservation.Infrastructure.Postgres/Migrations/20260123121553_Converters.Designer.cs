@@ -13,8 +13,8 @@ using SeatReservation.Infrastructure.Postgres;
 namespace SeatReservation.Infrastructure.Postgres.Migrations
 {
     [DbContext(typeof(ReservationServiceDbContext))]
-    [Migration("20260122155329_EventDetails")]
-    partial class EventDetails
+    [Migration("20260123121553_Converters")]
+    partial class Converters
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,9 +35,18 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Info")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
 
                     b.Property<Guid>("VenueId")
                         .HasColumnType("uuid")
@@ -80,13 +89,15 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("event_id");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id")
                         .HasName("pk_reservations");
@@ -100,19 +111,22 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("ReservationId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("ReservedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("SeatId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("seat_id");
+
+                    b.Property<Guid>("reservation_id")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id")
                         .HasName("pk_reservation_seats");
 
-                    b.HasIndex("ReservationId");
+                    b.HasIndex("SeatId");
+
+                    b.HasIndex("reservation_id");
 
                     b.ToTable("reservation_seats", (string)null);
                 });
@@ -206,9 +220,15 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
 
             modelBuilder.Entity("SeatReservation.Domain.Reservations.ReservationSeat", b =>
                 {
+                    b.HasOne("SeatReservation.Domain.Venues.Seat", null)
+                        .WithMany()
+                        .HasForeignKey("SeatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SeatReservation.Domain.Reservations.Reservation", "Reservation")
                         .WithMany("ReservedSeats")
-                        .HasForeignKey("ReservationId")
+                        .HasForeignKey("reservation_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

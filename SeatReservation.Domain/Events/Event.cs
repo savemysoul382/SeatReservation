@@ -31,5 +31,37 @@ public class Event
 
     public string Name { get; private set; }
 
+    public EventType Type { get; private set; }
+
     public DateTime EventDate { get; private set; }
+
+    public IEventInfo Info { get; private set; }
+}
+
+public interface IEventInfo
+{
+}
+
+public record ConcertInfo(string Performer) : IEventInfo;
+
+public record ConferenceInfo(string Topic, string Speaker) : IEventInfo;
+
+public record OnlineInfo(string Url) : IEventInfo;
+
+public enum EventType
+{
+    /// <summary>
+    /// Концерт
+    /// </summary>
+    CONCERT,
+
+    /// <summary>
+    /// Спортивное мероприятие
+    /// </summary>
+    CONFERENCE,
+
+    /// <summary>
+    /// Онлайн мероприятие
+    /// </summary>
+    ONLINE,
 }

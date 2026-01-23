@@ -1,5 +1,7 @@
 ﻿// SeatReservation.Domain
 
+using SeatReservation.Domain.Venues;
+
 namespace SeatReservation.Domain.Reservations;
 
 public record ReservationId(Guid Value);
@@ -16,7 +18,10 @@ public class Reservation
         Status = ReservationStatus.PENDING;
         CreatedAt = DateTime.UtcNow;
 
-        List<ReservationSeat> reservationSeats = seatIds.Select(seatId => new ReservationSeat(new ReservationSeatId(Guid.NewGuid()), this, seatId, DateTime.UtcNow)).ToList();
+        List<ReservationSeat> reservationSeats = seatIds.Select(seatId => new ReservationSeat(
+            new ReservationSeatId(Guid.NewGuid()),
+            this,
+            new SeatId(Value: seatId))).ToList();
         _reservedSeats = reservationSeats;
     }
 

@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Reservations;
 
 namespace SeatReservation.Infrastructure.Postgres.Configurations;
@@ -17,5 +18,11 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
         builder.Property(v => v.Id)
             .HasConversion(v => v.Value, id => new ReservationId(id))
             .HasColumnName("id");
+
+        builder.Property(r => r.EventId)
+            .HasColumnName("event_id");
+
+        builder.Property(r => r.UserId)
+            .HasColumnName("user_id");
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Venues;
+using SeatReservation.Infrastructure.Postgres.Converters;
 
 namespace SeatReservation.Infrastructure.Postgres.Configurations;
 
@@ -25,8 +26,19 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .WithMany()
             .HasForeignKey(e => e.VenueId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(deleteBehavior: DeleteBehavior.Cascade);
 
         builder.Property(e => e.VenueId).HasColumnName("venue_id");
+
+        builder.HasOne<Venue>()
+            .WithMany()
+            .HasForeignKey(e => e.VenueId)
+            .IsRequired()
+            .OnDelete(deleteBehavior: DeleteBehavior.Cascade);
+
+        builder.Property(e => e.Type).HasConversion<string>().HasColumnName("type");
+
+        builder.Property(e => e.Info)
+            .HasConversion(new EventInfoConverter());
     }
 }
