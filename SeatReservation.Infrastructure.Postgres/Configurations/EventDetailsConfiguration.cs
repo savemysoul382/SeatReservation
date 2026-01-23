@@ -17,5 +17,12 @@ public class EventDetailsConfiguration : IEntityTypeConfiguration<EventDetails>
         builder.Property(v => v.EventId)
             .HasConversion(v => v.Value, id => new EventId(id))
             .HasColumnName("event_id");
+
+        builder
+            .HasOne<Event>()
+            .WithOne(e => e.Details)
+            .HasForeignKey<EventDetails>(ed => ed.EventId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

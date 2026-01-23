@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SeatReservation.Domain.Events;
+using SeatReservation.Domain.Venues;
 
 namespace SeatReservation.Infrastructure.Postgres.Configurations;
 
@@ -17,5 +18,15 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(v => v.Id)
             .HasConversion(v => v.Value, id => new EventId(id))
             .HasColumnName("id");
+
+        // WithMany - типа events, но не пишем
+        builder
+            .HasOne<Venue>()
+            .WithMany()
+            .HasForeignKey(e => e.VenueId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Property(e => e.VenueId).HasColumnName("venue_id");
     }
 }

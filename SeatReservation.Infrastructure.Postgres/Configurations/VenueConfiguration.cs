@@ -36,5 +36,12 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
                     .Property(v => v.Name)
                     .HasMaxLength(LengthConstants.LENGTH500).HasColumnName("name");
             });
+
+        builder.HasMany(v => v.Seats)
+            // .WithOne(s => s.Venue)
+            .WithOne()
+            .HasForeignKey(s => s.VenueId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

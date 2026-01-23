@@ -1,5 +1,7 @@
 ﻿// SeatReservation.Domain
 
+using SeatReservation.Domain.Venues;
+
 namespace SeatReservation.Domain.Events;
 
 public record EventId(Guid Value);
@@ -11,7 +13,7 @@ public class Event
     {
     }
 
-    public Event(EventId id, Guid venueId, EventDetails details, string name, DateTime eventDate)
+    public Event(EventId id, VenueId venueId, EventDetails details, string name, DateTime eventDate)
     {
         Id = id;
         VenueId = venueId;
@@ -25,7 +27,7 @@ public class Event
     // навигационное свойство
     public EventDetails Details { get; set; } = null!;
 
-    public Guid VenueId { get; private set; }
+    public VenueId VenueId { get; private set; }
 
     public string Name { get; private set; }
 

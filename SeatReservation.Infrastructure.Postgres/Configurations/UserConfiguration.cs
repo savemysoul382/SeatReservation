@@ -1,5 +1,6 @@
 ﻿// SeatReservation.Infrastructure.Postgres
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -34,6 +35,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         //            .HasMaxLength(LengthConstants.LENGTH500)
         //            .HasColumnName("name");
         //    });
+
+        // можно так, но медленнее, но не можем более подробно сконфигурировать link, name - required? maxLength и прочее
+        // builder.Property(u => u.Details)
+        //    .HasConversion(
+        //        v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
+        //        json => JsonSerializer.Deserialize<Details>(json, JsonSerializerOptions.Default)! )
+        //    .HasColumnType("jsonb");
 
         // ComplexProperty с коллекциями глючит
         builder.OwnsOne(

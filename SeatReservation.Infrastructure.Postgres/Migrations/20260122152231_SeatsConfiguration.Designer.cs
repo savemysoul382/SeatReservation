@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SeatReservation.Infrastructure.Postgres;
@@ -12,9 +13,11 @@ using SeatReservation.Infrastructure.Postgres;
 namespace SeatReservation.Infrastructure.Postgres.Migrations
 {
     [DbContext(typeof(ReservationServiceDbContext))]
-    partial class ReservationServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260122152231_SeatsConfiguration")]
+    partial class SeatsConfiguration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,13 +40,10 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.Property<Guid>("VenueId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("venue_id");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id")
                         .HasName("pk_events");
-
-                    b.HasIndex("VenueId");
 
                     b.ToTable("events", (string)null);
                 });
@@ -140,8 +140,7 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasColumnType("integer");
 
                     b.Property<Guid>("VenueId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("venue_id");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id")
                         .HasName("pk_seats");
@@ -181,15 +180,6 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasName("pk_venues");
 
                     b.ToTable("venues", (string)null);
-                });
-
-            modelBuilder.Entity("SeatReservation.Domain.Events.Event", b =>
-                {
-                    b.HasOne("SeatReservation.Domain.Venues.Venue", null)
-                        .WithMany()
-                        .HasForeignKey("VenueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SeatReservation.Domain.Events.EventDetails", b =>
@@ -276,11 +266,13 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
 
             modelBuilder.Entity("SeatReservation.Domain.Venues.Seat", b =>
                 {
-                    b.HasOne("SeatReservation.Domain.Venues.Venue", null)
+                    b.HasOne("SeatReservation.Domain.Venues.Venue", "Venue")
                         .WithMany("Seats")
                         .HasForeignKey("VenueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Venue");
                 });
 
             modelBuilder.Entity("SeatReservation.Domain.Events.Event", b =>
