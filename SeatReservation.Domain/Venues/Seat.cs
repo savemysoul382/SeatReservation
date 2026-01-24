@@ -21,9 +21,9 @@ public class Seat
     {
     }
 
-    public SeatId Id { get; }
+    public SeatId Id { get; } = null!;
 
-    public VenueId VenueId { get; private set; }
+    public VenueId VenueId { get; private set; } = null!;
 
     // можно не указывать связь, но она есть. Место не может существовать вне зала
     // public Venue Venue { get; private set; } = null!;

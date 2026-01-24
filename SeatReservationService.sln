@@ -17,6 +17,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeatReservation.Infrastructure.Postgres", "SeatReservation.Infrastructure.Postgres\SeatReservation.Infrastructure.Postgres.csproj", "{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeatReservation.Application", "SeatReservation.Application\SeatReservation.Application.csproj", "{C8763952-AC2B-412B-9DF4-1895AAC073CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeatReservation.Contracts", "SeatReservation.Contracts\SeatReservation.Contracts.csproj", "{DD613D33-3861-45E1-B7FF-C34AA33801A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2DF25FA-D588-4A5D-9E7B-0536D8E9481F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8763952-AC2B-412B-9DF4-1895AAC073CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8763952-AC2B-412B-9DF4-1895AAC073CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8763952-AC2B-412B-9DF4-1895AAC073CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8763952-AC2B-412B-9DF4-1895AAC073CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD613D33-3861-45E1-B7FF-C34AA33801A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD613D33-3861-45E1-B7FF-C34AA33801A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD613D33-3861-45E1-B7FF-C34AA33801A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD613D33-3861-45E1-B7FF-C34AA33801A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

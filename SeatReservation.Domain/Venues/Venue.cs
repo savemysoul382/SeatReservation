@@ -50,4 +50,36 @@ public class Venue
     {
         SeatsLimit = newSeatsLimit;
     }
+
+    public static Result<Venue, Error> Create(
+        string prefix,
+        string name,
+        int seatsLimit,
+        IEnumerable<Seat> seats)
+    {
+        if (seatsLimit <= 0)
+        {
+            return Error.Validation("venue.seatsLimit", "Seats limit must be greater than zero");
+        }
+
+        var venueNameResult = VenueName.Create(prefix, name);
+        if (venueNameResult.IsFailure)
+        {
+            return venueNameResult.Error;
+        }
+
+        var venueSeats = seats.ToList();
+
+        if (venueSeats.Count < 1)
+        {
+            return Error.Validation("venue.seats", "Number of seats can not be zero");
+        }
+
+        if (venueSeats.Count > seatsLimit)
+        {
+            return Error.Validation("venue.seats", "Number of seats exceeds the venue's seat limit");
+        }
+
+        return new Venue(new VenueId(Guid.NewGuid()), venueNameResult.Value, seatsLimit, venueSeats);
+    }
 }

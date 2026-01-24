@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SeatReservation.Application.DataBase;
 using SeatReservation.Domain.Venues;
 
 namespace SeatReservation.Infrastructure.Postgres
 {
-    public class ReservationServiceDbContext : DbContext
+    public class ReservationServiceDbContext : DbContext, IReservationServiceDbContext
     {
         private readonly string _connectionString;
 
@@ -15,6 +17,10 @@ namespace SeatReservation.Infrastructure.Postgres
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql(connectionString: _connectionString);
+
+            optionsBuilder.EnableDetailedErrors();
+            optionsBuilder.EnableSensitiveDataLogging();
+            optionsBuilder.UseLoggerFactory(CreateLoggerFactory());
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,6 +30,11 @@ namespace SeatReservation.Infrastructure.Postgres
         }
 
         public DbSet<Venue> Venues => Set<Venue>();
+
+        private ILoggerFactory CreateLoggerFactory()
+        {
+           return LoggerFactory.Create(builder => { builder.AddConsole(); });
+        }
     }
 
     // Example of using NpgsqlDataSource directly (not recommended in EF Core context)
