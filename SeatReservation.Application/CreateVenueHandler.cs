@@ -9,11 +9,11 @@ namespace SeatReservation.Application;
 
 public class CreateVenueHandler
 {
-    private readonly IReservationServiceDbContext _dbContext;
+    private readonly IVenuesRepository _venuesRepository;
 
-    public CreateVenueHandler(IReservationServiceDbContext dbContext)
+    public CreateVenueHandler(IVenuesRepository venuesRepository)
     {
-        _dbContext = dbContext;
+        _venuesRepository = venuesRepository;
     }
 
     /// <summary>
@@ -29,8 +29,6 @@ public class CreateVenueHandler
         // бизнес валидация
 
         // создание доменных моделей
-        
-
         var venue = Venue.Create(
             prefix: request.prefix,
             name: request.Name,
@@ -56,29 +54,9 @@ public class CreateVenueHandler
             seats.Add(item: seat.Value);
         }
 
-        var entries1 = _dbContext.ChangeTracker.Entries();
-
-        // сохранение доменных моделей в БД
-        await _dbContext.Venues.AddAsync(entity: venue.Value, cancellationToken: ct);
-
-        var entries2 = _dbContext.ChangeTracker.Entries();
-
         venue.Value.AddSeats(seats);
-
-        var entries3 = _dbContext.ChangeTracker.Entries();
-
-        await _dbContext.SaveChangesAsync(cancellationToken: ct);
-
-        var entries4 = _dbContext.ChangeTracker.Entries();
-
-        venue.Value.Name = new VenueName("Рок площадка", "РОК");
-
-        var entries5 = _dbContext.ChangeTracker.Entries();
-
-        await _dbContext.SaveChangesAsync(cancellationToken: ct);
-
-        var entries6 = _dbContext.ChangeTracker.Entries();
-
-        return venue.Value.Id.Value;
+        // сохранение доменных моделей в БД
+        Guid guid = await _venuesRepository.Add(venue: venue.Value, ct: ct);
+        return guid;
     }
 }

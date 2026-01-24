@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SeatReservation.Application.DataBase;
 using SeatReservation.Domain.Venues;
 
 namespace SeatReservation.Infrastructure.Postgres
 {
-    public class ReservationServiceDbContext : DbContext, IReservationServiceDbContext
+    public class ReservationServiceDbContext : DbContext
     {
         private readonly string _connectionString;
 
@@ -33,12 +32,12 @@ namespace SeatReservation.Infrastructure.Postgres
 
         private ILoggerFactory CreateLoggerFactory()
         {
-           return LoggerFactory.Create(builder => { builder.AddConsole(); });
+            return LoggerFactory.Create(builder => { builder.AddConsole(); });
         }
     }
 
     // Example of using NpgsqlDataSource directly (not recommended in EF Core context)
-    //    public class VenueRepository
+    //    public class NpgSqlVenuesRepository
     //    {
     //        public async Task AddVenue(Venue venue)
     //        {

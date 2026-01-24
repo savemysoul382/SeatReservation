@@ -1,16 +1,12 @@
 ﻿// SeatReservation.Application
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using CSharpFunctionalExtensions;
 using SeatReservation.Domain.Venues;
+using Shared;
 
 namespace SeatReservation.Application.DataBase;
 
-public interface IReservationServiceDbContext
+public interface IVenuesRepository
 {
-    DbSet<Venue> Venues { get; }
-
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
-
-    ChangeTracker ChangeTracker { get; }
+    Task<Result<Guid, Error>> Add(Venue venue, CancellationToken ct = default);
 }
