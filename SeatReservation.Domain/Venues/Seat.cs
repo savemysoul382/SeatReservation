@@ -9,9 +9,10 @@ public record SeatId(Guid Value);
 
 public class Seat
 {
-    private Seat(SeatId id, int rowNumber, int seatNumber)
+    private Seat(SeatId id, Venue venue, int rowNumber, int seatNumber)
     {
         Id = id;
+        Venue = venue;
         RowNumber = rowNumber;
         SeatNumber = seatNumber;
     }
@@ -23,7 +24,7 @@ public class Seat
 
     public SeatId Id { get; } = null!;
 
-    public VenueId VenueId { get; private set; } = null!;
+    public Venue Venue { get; private set; } = null!;
 
     // можно не указывать связь, но она есть. Место не может существовать вне зала
     // public Venue Venue { get; private set; } = null!;
@@ -31,13 +32,17 @@ public class Seat
 
     public int SeatNumber { get; private set; }
 
-    public static Result<Seat, Error> Create(int rowNumber, int seatNumber)
+    public static Result<Seat, Error> Create(Venue venue, int rowNumber, int seatNumber)
     {
         if (rowNumber <= 0 || seatNumber <= 0)
         {
             return Error.Validation("seat.rowNumber", "Row number and seat number must be greater than zero");
         }
 
-        return new Seat(id: new SeatId(Guid.NewGuid()), rowNumber: rowNumber, seatNumber: seatNumber);
+        return new Seat(
+            id: new SeatId(Guid.NewGuid()),
+            venue: venue,
+            rowNumber: rowNumber,
+            seatNumber: seatNumber);
     }
 }

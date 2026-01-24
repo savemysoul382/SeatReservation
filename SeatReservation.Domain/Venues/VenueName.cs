@@ -7,7 +7,7 @@ namespace SeatReservation.Domain.Venues;
 
 public record VenueName
 {
-    private VenueName(string name, string prefix)
+    public VenueName(string name, string prefix)
     {
         Name = name;
         Prefix = prefix;

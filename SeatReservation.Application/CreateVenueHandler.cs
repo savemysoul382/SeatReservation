@@ -29,10 +29,25 @@ public class CreateVenueHandler
         // бизнес валидация
 
         // создание доменных моделей
+        
+
+        var venue = Venue.Create(
+            prefix: request.prefix,
+            name: request.Name,
+            seatsLimit: request.SeatsLimit);
+
+        if (venue.IsFailure)
+        {
+            return venue.Error;
+        }
+
         List<Seat> seats = new List<Seat>();
         foreach (CreateSeatRequest createSeatRequest in request.Seats)
         {
-            var seat = Seat.Create(rowNumber: createSeatRequest.RowNumber, seatNumber: createSeatRequest.SeatNumber);
+            var seat = Seat.Create(
+                venue: venue.Value,
+                rowNumber: createSeatRequest.RowNumber,
+                seatNumber: createSeatRequest.SeatNumber);
             if (seat.IsFailure)
             {
                 return seat.Error;
@@ -41,12 +56,6 @@ public class CreateVenueHandler
             seats.Add(item: seat.Value);
         }
 
-        var venue = Venue.Create(
-            prefix: request.prefix,
-            name: request.Name,
-            seatsLimit: request.SeatsLimit,
-            seats: seats);
-
         var entries1 = _dbContext.ChangeTracker.Entries();
 
         // сохранение доменных моделей в БД
@@ -54,9 +63,21 @@ public class CreateVenueHandler
 
         var entries2 = _dbContext.ChangeTracker.Entries();
 
-        await _dbContext.SaveChangesAsync(cancellationToken: ct);
+        venue.Value.AddSeats(seats);
 
         var entries3 = _dbContext.ChangeTracker.Entries();
+
+        await _dbContext.SaveChangesAsync(cancellationToken: ct);
+
+        var entries4 = _dbContext.ChangeTracker.Entries();
+
+        venue.Value.Name = new VenueName("Рок площадка", "РОК");
+
+        var entries5 = _dbContext.ChangeTracker.Entries();
+
+        await _dbContext.SaveChangesAsync(cancellationToken: ct);
+
+        var entries6 = _dbContext.ChangeTracker.Entries();
 
         return venue.Value.Id.Value;
     }

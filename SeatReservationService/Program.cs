@@ -5,6 +5,9 @@ using SeatReservation.Infrastructure.Postgres;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<ReservationServiceDbContext>(_ =>
+    new ReservationServiceDbContext(builder.Configuration.GetConnectionString("ReservationServiceDb")!));
+
 builder.Services.AddScoped<IReservationServiceDbContext, ReservationServiceDbContext>(_ =>
     new ReservationServiceDbContext(builder.Configuration.GetConnectionString("ReservationServiceDb")!));
 
