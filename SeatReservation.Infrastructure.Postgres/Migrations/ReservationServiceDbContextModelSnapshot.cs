@@ -45,14 +45,14 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasColumnType("text")
                         .HasColumnName("type");
 
-                    b.Property<Guid>("VenueId")
+                    b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("venue_id");
 
                     b.HasKey("Id")
                         .HasName("pk_events");
 
-                    b.HasIndex("VenueId");
+                    b.HasIndex("Id");
 
                     b.ToTable("events", (string)null);
                 });
@@ -202,7 +202,7 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                 {
                     b.HasOne("SeatReservation.Domain.Venues.Venue", null)
                         .WithMany()
-                        .HasForeignKey("VenueId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

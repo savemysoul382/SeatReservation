@@ -2,10 +2,11 @@
 
 using CSharpFunctionalExtensions;
 using SeatReservation.Application.DataBase;
+using SeatReservation.Contracts;
 using SeatReservation.Domain.Venues;
 using Shared;
 
-namespace SeatReservation.Application;
+namespace SeatReservation.Application.Venues;
 
 public class CreateVenueHandler
 {
@@ -55,8 +56,14 @@ public class CreateVenueHandler
         }
 
         venue.Value.AddSeats(seats);
+
         // сохранение доменных моделей в БД
-        Guid guid = await _venuesRepository.Add(venue: venue.Value, ct: ct);
-        return guid;
+        Result<Guid, Error> result = await _venuesRepository.Add(venue: venue.Value, ct: ct);
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+
+        return result.Value;
     }
 }

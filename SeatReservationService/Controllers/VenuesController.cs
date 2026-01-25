@@ -1,9 +1,9 @@
 ﻿// SeatReservationService
 
-using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
-using SeatReservation.Application;
-using Shared;
+using SeatReservation.Application.Venues;
+using SeatReservation.Contracts;
+using CreateVenueRequest = SeatReservation.Application.Venues.CreateVenueRequest;
 
 namespace SeatReservationService.Controllers;
 
@@ -12,9 +12,19 @@ namespace SeatReservationService.Controllers;
 public class VenuesController : ControllerBase
 {
     [HttpPost]
-    public async Task<Result<Guid, Error>> Create([FromServices] CreateVenueHandler createVenueHandler, [FromBody] CreateVenueRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create([FromServices] CreateVenueHandler createVenueHandler, [FromBody] CreateVenueRequest request, CancellationToken ct)
     {
         var result = await createVenueHandler.Handle(request: request, ct: ct);
-        return result;
+        return result.IsFailure ? result.Error.ToResponse() : Ok(value: result.Value);
+    }
+
+    [HttpPatch]
+    public async Task<IActionResult> UpdateVenueName(
+        [FromServices] UpdateVenueNameHandler updateVenueNameHandler,
+        [FromBody] UpdateVenueNameRequest request,
+        CancellationToken ct)
+    {
+        var result = await updateVenueNameHandler.Handle(request: request, ct: ct);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(value: result.Value);
     }
 }

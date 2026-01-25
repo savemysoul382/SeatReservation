@@ -7,6 +7,7 @@ using SeatReservation.Application.DataBase;
 using SeatReservation.Domain.Venues;
 using SeatReservation.Infrastructure.Postgres.Database;
 using Shared;
+using Venue = SeatReservation.Domain.Venues.Venue;
 
 namespace SeatReservation.Infrastructure.Postgres.Repositories;
 
@@ -66,9 +67,44 @@ public class NpgSqlVenuesRepository : IVenuesRepository
         {
             transaction.Rollback();
 
-            _logger.LogError(e, "Fail to insert venue with id: {VenueId}", venue.Id.Value);
+            _logger.LogError(e, "Fail to insert venue with id: {Id}", venue.Id.Value);
 
             return Error.Failure("venue.insert", "Fail to insert venue");
+        }
+    }
+
+    public async Task<Result<Guid, Error>> UpdateVenueName(VenueId venueId, VenueName venueName, CancellationToken ct)
+    {
+        using var connection = await _connectionFactory.CreateConnectionAsync(ct);
+
+        using var transaction = connection.BeginTransaction();
+
+        try
+        {
+            const string update_name_sql = """
+                                           UPDATE venues 
+                                           SET name = @Name
+                                           WHERE Id = @Id
+                                           """;
+
+            var updateNameSqlParams = new
+            {
+                Id = venueId.Value, Name = venueName.Name,
+            };
+
+            await connection.ExecuteAsync(sql: update_name_sql, param: updateNameSqlParams);
+
+            transaction.Commit();
+
+            return venueId.Value;
+        }
+        catch (Exception e)
+        {
+            transaction.Rollback();
+
+            _logger.LogError(e, "Fail to update venue with venueId: {Id}", venueId.Value);
+
+            return Error.Failure("venue.update", "Fail to update venue");
         }
     }
 }

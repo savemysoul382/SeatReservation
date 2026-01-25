@@ -24,6 +24,16 @@ public record VenueName
 
     public override string ToString() => $"{Prefix}-{Name}";
 
+    public static Result<VenueName, Error> CreateWithoutPrefix(string name)
+    {
+        if (string.IsNullOrWhiteSpace(value: name))
+        {
+            return Error.Validation("venue.name", "Name is required");
+        }
+
+        return new VenueName(name: name, prefix: string.Empty);
+    }   
+
     public static Result<VenueName, Error> Create(string name, string prefix)
     {
         if (string.IsNullOrWhiteSpace(value: name) || string.IsNullOrWhiteSpace(value: prefix))

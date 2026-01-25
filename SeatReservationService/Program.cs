@@ -1,5 +1,5 @@
-﻿using SeatReservation.Application;
-using SeatReservation.Application.DataBase;
+﻿using SeatReservation.Application.DataBase;
+using SeatReservation.Application.Venues;
 using SeatReservation.Infrastructure.Postgres;
 using SeatReservation.Infrastructure.Postgres.Database;
 using SeatReservation.Infrastructure.Postgres.Repositories;
@@ -10,8 +10,10 @@ builder.Services.AddScoped<ReservationServiceDbContext>(_ =>
     new ReservationServiceDbContext(builder.Configuration.GetConnectionString("ReservationServiceDb")!));
 
 builder.Services.AddScoped<IVenuesRepository, NpgSqlVenuesRepository>();
-//builder.Services.AddScoped<IVenuesRepository, EfCoreVenuesRepository>();
+
+// builder.Services.AddScoped<IVenuesRepository, EfCoreVenuesRepository>();
 builder.Services.AddScoped<CreateVenueHandler>();
+builder.Services.AddScoped<UpdateVenueNameHandler>();
 
 builder.Services.AddSingleton<IDbConnectionFactory, NpgSqlConnectionFactory>();
 
