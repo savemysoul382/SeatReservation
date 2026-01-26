@@ -9,12 +9,12 @@ using Shared;
 
 namespace SeatReservation.Infrastructure.Postgres.Repositories;
 
-public class EfCoreVenuesRepository : IVenuesRepository
+public class VenuesRepository : IVenuesRepository
 {
     private readonly ReservationServiceDbContext _dbContext;
-    private readonly ILogger<EfCoreVenuesRepository> _logger;
+    private readonly ILogger<VenuesRepository> _logger;
 
-    public EfCoreVenuesRepository(ReservationServiceDbContext dbContext, ILogger<EfCoreVenuesRepository> logger)
+    public VenuesRepository(ReservationServiceDbContext dbContext, ILogger<VenuesRepository> logger)
     {
         _dbContext = dbContext;
         _logger = logger;
@@ -54,13 +54,6 @@ public class EfCoreVenuesRepository : IVenuesRepository
         return venues;
     }
 
-    public async Task Save()
-    {
-        var entries = _dbContext.ChangeTracker.Entries();
-
-        await _dbContext.SaveChangesAsync();
-    }
-
     // еще один способ, но он не очень приветствуется
     public async Task Update(Venue venue)
     {
@@ -88,15 +81,25 @@ public class EfCoreVenuesRepository : IVenuesRepository
 
     public async Task<Result<Guid, Error>> UpdateVenueName(VenueId venueId, VenueName venueName, CancellationToken ct)
     {
-        // метод выполняется сразу, мы не пишем SaveChangesAsync
-        int result = await _dbContext.Venues
-            .Where(v => v.Id == venueId)
-            .ExecuteUpdateAsync(
-                setter => setter
-                    .SetProperty(v => v.Name.Name, venueName.Name),
-                ct);
+        // Dapper approach
+        // DbConnection connection = _dbContext.Database.GetDbConnection();
+        // connection.ExecuteAsync()
+        await _dbContext.Database.ExecuteSqlAsync($"UPDATE venues SET name = '{venueName.Name}' WHERE id = {venueId.Value}", cancellationToken: ct);
 
-        return result > 0 ? venueId.Value : Error.Failure("venue.update", "Fail to update venue");
+        // RawSql approach with parameters
+        // await _dbContext.Database.ExecuteSqlRawAsync(
+        //    $"UPDATE venues SET name = @Name WHERE id = @Id",
+        //    new NpgsqlParameter[] { new NpgsqlParameter("@Name", venueName.Name), new NpgsqlParameter("@Id", venueId.Value),},
+        //    cancellationToken: ct);
+
+        // метод выполняется сразу, мы не пишем SaveChangesAsync
+        // int result = await _dbContext.Venues
+        //    .Where(v => v.Id == venueId)
+        //    .ExecuteUpdateAsync(
+        //        setter => setter
+        //            .SetProperty(v => v.Name.Name, venueName.Name),
+        //        ct);
+        return venueId.Value;
     }
 
     public async Task<UnitResult<Error>> UpdateVenueNameByPrefix(string prefix, VenueName venueName, CancellationToken ct)

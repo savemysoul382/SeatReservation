@@ -11,19 +11,30 @@ namespace SeatReservation.Application.Venues;
 public class UpdateVenueSeatsHandler
 {
     private readonly IVenuesRepository _repository;
+    private readonly ITransactionManager _transactionManager;
 
-    public UpdateVenueSeatsHandler(IVenuesRepository repository)
+    public UpdateVenueSeatsHandler(IVenuesRepository repository, ITransactionManager transactionManager)
     {
         _repository = repository;
+        _transactionManager = transactionManager;
     }
 
     public async Task<Result<Guid, Error>> Handle(UpdateVenueSeatsRequest request, CancellationToken ct)
     {
         var venueId = new VenueId(Value: request.VenueId);
 
+        Result<ITransactionScope, Error> transactionScopeResult = await _transactionManager.BeginTransactionAsync(ct);
+        if (transactionScopeResult.IsFailure)
+        {
+            return transactionScopeResult.Error;
+        }
+
+        using var transactionScope = transactionScopeResult.Value;
+
         var venue = await _repository.GetById(venueId, ct);
         if (venue.IsFailure)
         {
+            transactionScope.Rollback();
             return venue.Error;
         }
 
@@ -36,6 +47,7 @@ public class UpdateVenueSeatsHandler
                 seatNumber: st.SeatNumber);
             if (seat.IsFailure)
             {
+                transactionScope.Rollback();
                 return seat.Error;
             }
 
@@ -45,12 +57,19 @@ public class UpdateVenueSeatsHandler
         UnitResult<Error> updateSeats = venue.Value.UpdateSeats(seats);
         if (updateSeats.IsFailure)
         {
+            transactionScope.Rollback();
             return updateSeats.Error;
         }
 
         await _repository.DeleteSeatsByVenueId(venueId, ct);
 
-        await _repository.Save();
+        await _transactionManager.SaveChangesAsync(ct);
+
+        UnitResult<Error> commitedResult = transactionScope.Commit();
+        if (commitedResult.IsFailure)
+        {
+            return commitedResult.Error;
+        }
 
         return venueId.Value;
     }

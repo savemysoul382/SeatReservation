@@ -11,26 +11,28 @@ namespace SeatReservation.Application.Venues;
 public class UpdateVenueNameHandler
 {
     private readonly IVenuesRepository _repository;
+    private readonly ITransactionManager _transactionManager;
 
-    public UpdateVenueNameHandler(IVenuesRepository repository)
+    public UpdateVenueNameHandler(IVenuesRepository repository, ITransactionManager transactionManager)
     {
         _repository = repository;
+        _transactionManager = transactionManager;
     }
 
     public async Task<Result<Guid, Error>> Handle(UpdateVenueNameRequest request, CancellationToken ct)
     {
         var venueId = new VenueId(Value: request.Id);
 
-        (_, bool isFailure, Venue? venue, Error? error) = await _repository.GetById(id: venueId, ct: ct);
+        Result<Venue, Error> venueResult = await _repository.GetById(id: venueId, ct: ct);
 
-        if (isFailure)
+        if (venueResult.IsFailure)
         {
-            return error;
+            return venueResult.Error;
         }
 
-        venue.UpdateName(name: request.Name);
+        venueResult.Value.UpdateName(name: request.Name);
 
-        await _repository.Save();
+        await _transactionManager.SaveChangesAsync(ct);
 
         return venueId.Value;
     }
