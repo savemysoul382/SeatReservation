@@ -31,7 +31,7 @@ public class CreateVenueHandler
 
         // создание доменных моделей
         var venue = Venue.Create(
-            prefix: request.prefix,
+            prefix: request.Prefix,
             name: request.Name,
             seatsLimit: request.SeatsLimit);
 

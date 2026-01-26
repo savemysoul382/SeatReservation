@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SeatReservation.Application.Venues;
 using SeatReservation.Contracts;
-using CreateVenueRequest = SeatReservation.Application.Venues.CreateVenueRequest;
 
 namespace SeatReservationService.Controllers;
 
@@ -35,6 +34,16 @@ public class VenuesController : ControllerBase
         CancellationToken ct)
     {
         var result = await updateVenueNameByPrefixHandler.Handle(request: request, ct: ct);
+        return result.IsFailure ? result.Error.ToResponse() : Ok();
+    }
+
+    [HttpPatch("/seats")]
+    public async Task<IActionResult> UpdateVenueSeats(
+        [FromServices] UpdateVenueSeatsHandler updateVenueSeatsHandler,
+        [FromBody] UpdateVenueSeatsRequest request,
+        CancellationToken ct)
+    {
+        var result = await updateVenueSeatsHandler.Handle(request: request, ct: ct);
         return result.IsFailure ? result.Error.ToResponse() : Ok();
     }
 }

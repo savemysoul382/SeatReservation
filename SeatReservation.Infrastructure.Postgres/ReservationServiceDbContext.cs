@@ -30,6 +30,8 @@ namespace SeatReservation.Infrastructure.Postgres
 
         public DbSet<Venue> Venues => Set<Venue>();
 
+        public DbSet<Seat> Seats => Set<Seat>();
+
         private ILoggerFactory CreateLoggerFactory()
         {
             return LoggerFactory.Create(builder => { builder.AddConsole(); });

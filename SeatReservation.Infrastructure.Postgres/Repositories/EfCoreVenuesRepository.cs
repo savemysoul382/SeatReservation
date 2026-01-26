@@ -20,6 +20,57 @@ public class EfCoreVenuesRepository : IVenuesRepository
         _logger = logger;
     }
 
+    public async Task<Result<Venue, Error>> GetById(VenueId id, CancellationToken ct)
+    {
+        var venue = await _dbContext.Venues
+            .FirstOrDefaultAsync(v => v.Id == id, ct);
+
+        var entries = _dbContext.ChangeTracker.Entries();
+
+        return venue != null
+            ? venue
+            : Error.NotFound("Venue not found", id.Value);
+    }
+
+    public async Task<Result<Venue, Error>> GetByIdWithSeats(VenueId id, CancellationToken ct)
+    {
+        var venue = await _dbContext.Venues
+            .Include(v => v.Seats)
+            .FirstOrDefaultAsync(v => v.Id == id, ct);
+
+        var entries = _dbContext.ChangeTracker.Entries();
+
+        return venue != null
+            ? venue
+            : Error.NotFound("Venue not found", id.Value);
+    }
+
+    public async Task<IReadOnlyList<Venue>> GetByPrefix(string prefix, CancellationToken ct)
+    {
+        var venues = await _dbContext.Venues
+            .Where(v => v.Name.Prefix.StartsWith(prefix))
+            .ToListAsync<Venue>(cancellationToken: ct);
+
+        return venues;
+    }
+
+    public async Task Save()
+    {
+        var entries = _dbContext.ChangeTracker.Entries();
+
+        await _dbContext.SaveChangesAsync();
+    }
+
+    // еще один способ, но он не очень приветствуется
+    public async Task Update(Venue venue)
+    {
+        var entries = _dbContext.ChangeTracker.Entries();
+
+        _dbContext.Venues.Update(venue);
+
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task<Result<Guid, Error>> Add(Venue venue, CancellationToken ct)
     {
         try
@@ -57,6 +108,16 @@ public class EfCoreVenuesRepository : IVenuesRepository
                 setter => setter
                     .SetProperty(v => v.Name.Name, venueName.Name),
                 ct);
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> DeleteSeatsByVenueId(VenueId venueId, CancellationToken ct)
+    {
+        // метод выполняется сразу, мы не пишем SaveChangesAsync
+        int result = await _dbContext.Seats
+            .Where(s => s.Venue.Id == venueId)
+            .ExecuteDeleteAsync(ct);
 
         return UnitResult.Success<Error>();
     }

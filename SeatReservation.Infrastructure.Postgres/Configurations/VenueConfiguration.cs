@@ -39,7 +39,7 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
 
         builder.HasMany(v => v.Seats)
             .WithOne(s => s.Venue) // .WithOne(s => s.Venue)
-            .HasForeignKey("venue_id")
+            .HasForeignKey(s => s.VenueId) // .HasForeignKey("venue_id")
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
     }

@@ -8,9 +8,21 @@ namespace SeatReservation.Application.DataBase;
 
 public interface IVenuesRepository
 {
+    Task<Result<Venue, Error>> GetById(VenueId id, CancellationToken ct);
+
+    Task<Result<Venue, Error>> GetByIdWithSeats(VenueId id, CancellationToken ct);
+
+    Task<IReadOnlyList<Venue>> GetByPrefix(string prefix, CancellationToken ct);
+
     Task<Result<Guid, Error>> Add(Venue venue, CancellationToken ct = default);
+
+    Task Save();
+
+    Task Update(Venue venue);
 
     Task<Result<Guid, Error>> UpdateVenueName(VenueId venueId, VenueName venueName, CancellationToken ct);
 
     Task<UnitResult<Error>> UpdateVenueNameByPrefix(string prefix, VenueName venueName, CancellationToken ct);
+
+    Task<UnitResult<Error>> DeleteSeatsByVenueId(VenueId venueId, CancellationToken ct);
 }

@@ -17,6 +17,14 @@ public class Seat
         SeatNumber = seatNumber;
     }
 
+    private Seat(SeatId id, VenueId venueId, int rowNumber, int seatNumber)
+    {
+        Id = id;
+        VenueId = venueId;
+        RowNumber = rowNumber;
+        SeatNumber = seatNumber;
+    }
+
     // EF Core ctor
     private Seat()
     {
@@ -26,11 +34,27 @@ public class Seat
 
     public Venue Venue { get; private set; } = null!;
 
+    public VenueId VenueId { get; private set; } = null!;
+
     // можно не указывать связь, но она есть. Место не может существовать вне зала
     // public Venue Venue { get; private set; } = null!;
     public int RowNumber { get; private set; }
 
     public int SeatNumber { get; private set; }
+
+    public static Result<Seat, Error> Create(VenueId venueId, int rowNumber, int seatNumber)
+    {
+        if (rowNumber <= 0 || seatNumber <= 0)
+        {
+            return Error.Validation("seat.rowNumber", "Row number and seat number must be greater than zero");
+        }
+
+        return new Seat(
+            id: new SeatId(Guid.NewGuid()),
+            venueId: venueId,
+            rowNumber: rowNumber,
+            seatNumber: seatNumber);
+    }
 
     public static Result<Seat, Error> Create(Venue venue, int rowNumber, int seatNumber)
     {

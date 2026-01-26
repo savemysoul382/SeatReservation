@@ -19,19 +19,19 @@ public class UpdateVenueNameHandler
 
     public async Task<Result<Guid, Error>> Handle(UpdateVenueNameRequest request, CancellationToken ct)
     {
-        var venueId = new VenueId(request.Id);
-        var venueName = VenueName.CreateWithoutPrefix(request.Name);
-        if (venueName.IsFailure)
+        var venueId = new VenueId(Value: request.Id);
+
+        (_, bool isFailure, Venue? venue, Error? error) = await _repository.GetById(id: venueId, ct: ct);
+
+        if (isFailure)
         {
-            return venueName.Error;
+            return error;
         }
 
-        Result<Guid, Error> result = await _repository.UpdateVenueName(venueId, venueName.Value, ct);
-        if (result.IsFailure)
-        {
-            return result.Error;
-        }
+        venue.UpdateName(name: request.Name);
 
-        return result.Value;
+        await _repository.Save();
+
+        return venueId.Value;
     }
 }

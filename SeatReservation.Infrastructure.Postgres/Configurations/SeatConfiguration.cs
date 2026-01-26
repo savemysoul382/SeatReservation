@@ -18,6 +18,10 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
             .HasConversion(v => v.Value, id => new SeatId(id))
             .HasColumnName("id");
 
+        builder.Property(v => v.VenueId)
+            .HasConversion(v => v.Value, id => new VenueId(id))
+            .HasColumnName("venue_id");
+
         // builder.Property(s => s.Id).HasColumnName("venue_id");
         builder.Property(v => v.RowNumber)
            .IsRequired()

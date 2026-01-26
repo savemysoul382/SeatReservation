@@ -9,12 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<ReservationServiceDbContext>(_ =>
     new ReservationServiceDbContext(builder.Configuration.GetConnectionString("ReservationServiceDb")!));
 
-builder.Services.AddScoped<IVenuesRepository, NpgSqlVenuesRepository>();
-
-//builder.Services.AddScoped<IVenuesRepository, EfCoreVenuesRepository>();
+// builder.Services.AddScoped<IVenuesRepository, NpgSqlVenuesRepository>();
+builder.Services.AddScoped<IVenuesRepository, EfCoreVenuesRepository>();
 builder.Services.AddScoped<CreateVenueHandler>();
 builder.Services.AddScoped<UpdateVenueNameHandler>();
 builder.Services.AddScoped<UpdateVenueNameByPrefixHandler>();
+builder.Services.AddScoped<UpdateVenueSeatsHandler>();
 
 builder.Services.AddSingleton<IDbConnectionFactory, NpgSqlConnectionFactory>();
 

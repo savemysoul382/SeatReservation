@@ -1,6 +1,7 @@
 ﻿// SeatReservation.Domain
 
 using CSharpFunctionalExtensions;
+using JetBrains.Annotations;
 using Shared;
 
 namespace SeatReservation.Domain.Venues;
@@ -14,6 +15,7 @@ public record VenueName
     }
 
     // EF Core ctor
+    [UsedImplicitly]
     private VenueName()
     {
     }
@@ -31,8 +33,13 @@ public record VenueName
             return Error.Validation("venue.name", "Name is required");
         }
 
+        if (name.Length > LengthConstants.LENGTH500)
+        {
+            return Error.Validation("venue.name", "Venue name is too long");
+        }
+
         return new VenueName(name: name, prefix: string.Empty);
-    }   
+    }
 
     public static Result<VenueName, Error> Create(string name, string prefix)
     {
@@ -43,7 +50,7 @@ public record VenueName
 
         if (prefix.Length > LengthConstants.LENGTH50 || name.Length > LengthConstants.LENGTH500)
         {
-            return Error.Validation("venue.name", "Name must be at most 100 characters long and prefix must be at most 50 characters long");
+            return Error.Validation("venue.name", "Venue name is too long");
         }
 
         return new VenueName(name: name, prefix: prefix);
