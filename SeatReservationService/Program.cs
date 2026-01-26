@@ -11,9 +11,10 @@ builder.Services.AddScoped<ReservationServiceDbContext>(_ =>
 
 builder.Services.AddScoped<IVenuesRepository, NpgSqlVenuesRepository>();
 
-// builder.Services.AddScoped<IVenuesRepository, EfCoreVenuesRepository>();
+//builder.Services.AddScoped<IVenuesRepository, EfCoreVenuesRepository>();
 builder.Services.AddScoped<CreateVenueHandler>();
 builder.Services.AddScoped<UpdateVenueNameHandler>();
+builder.Services.AddScoped<UpdateVenueNameByPrefixHandler>();
 
 builder.Services.AddSingleton<IDbConnectionFactory, NpgSqlConnectionFactory>();
 

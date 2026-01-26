@@ -21,7 +21,7 @@ public class Venue
             return Error.Validation("venue.seatsLimit", "Seats limit must be greater than zero");
         }
 
-        var venueNameResult = VenueName.Create(prefix, name);
+        var venueNameResult = VenueName.Create(name, prefix);
         if (venueNameResult.IsFailure)
         {
             return venueNameResult.Error;

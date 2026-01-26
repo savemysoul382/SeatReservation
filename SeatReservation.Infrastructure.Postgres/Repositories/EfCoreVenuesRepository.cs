@@ -41,11 +41,23 @@ public class EfCoreVenuesRepository : IVenuesRepository
         int result = await _dbContext.Venues
             .Where(v => v.Id == venueId)
             .ExecuteUpdateAsync(
-                setter => setter.SetProperty(
-                    v => v.Name.Name,
-                    venueName.Name),
+                setter => setter
+                    .SetProperty(v => v.Name.Name, venueName.Name),
                 ct);
 
         return result > 0 ? venueId.Value : Error.Failure("venue.update", "Fail to update venue");
+    }
+
+    public async Task<UnitResult<Error>> UpdateVenueNameByPrefix(string prefix, VenueName venueName, CancellationToken ct)
+    {
+        // метод выполняется сразу, мы не пишем SaveChangesAsync
+        int result = await _dbContext.Venues
+            .Where(v => v.Name.Prefix.StartsWith(prefix))
+            .ExecuteUpdateAsync(
+                setter => setter
+                    .SetProperty(v => v.Name.Name, venueName.Name),
+                ct);
+
+        return UnitResult.Success<Error>();
     }
 }

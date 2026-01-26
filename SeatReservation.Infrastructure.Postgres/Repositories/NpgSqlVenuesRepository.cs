@@ -107,4 +107,40 @@ public class NpgSqlVenuesRepository : IVenuesRepository
             return Error.Failure("venue.update", "Fail to update venue");
         }
     }
+
+    public async Task<UnitResult<Error>> UpdateVenueNameByPrefix(string prefix, VenueName venueName, CancellationToken ct)
+    {
+        using var connection = await _connectionFactory.CreateConnectionAsync(ct);
+
+        using var transaction = connection.BeginTransaction();
+
+        try
+        {
+            const string update_name_sql = """
+                                           UPDATE venues 
+                                           SET name = @Name
+                                           WHERE Prefix LIKE @Prefix
+                                           """;
+
+            var updateNameSqlParams = new
+            {
+                Prefix = $"{prefix}%",
+                Name = venueName.Name,
+            };
+
+            await connection.ExecuteAsync(sql: update_name_sql, param: updateNameSqlParams);
+
+            transaction.Commit();
+
+            return UnitResult.Success<Error>();
+        }
+        catch (Exception e)
+        {
+            transaction.Rollback();
+
+            _logger.LogError(e, "Fail to update venue with prefix: {prefix}", prefix);
+
+            return Error.Failure("venue.update", "Fail to update venue");
+        }
+    }
 }

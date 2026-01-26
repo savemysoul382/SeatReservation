@@ -18,7 +18,7 @@ public class VenuesController : ControllerBase
         return result.IsFailure ? result.Error.ToResponse() : Ok(value: result.Value);
     }
 
-    [HttpPatch]
+    [HttpPatch("/name")]
     public async Task<IActionResult> UpdateVenueName(
         [FromServices] UpdateVenueNameHandler updateVenueNameHandler,
         [FromBody] UpdateVenueNameRequest request,
@@ -26,5 +26,15 @@ public class VenuesController : ControllerBase
     {
         var result = await updateVenueNameHandler.Handle(request: request, ct: ct);
         return result.IsFailure ? result.Error.ToResponse() : Ok(value: result.Value);
+    }
+
+    [HttpPatch("/name/by-prefix")]
+    public async Task<IActionResult> UpdateVenueNameByPrefix(
+        [FromServices] UpdateVenueNameByPrefixHandler updateVenueNameByPrefixHandler,
+        [FromBody] UpdateVenueNameByPrefixRequest request,
+        CancellationToken ct)
+    {
+        var result = await updateVenueNameByPrefixHandler.Handle(request: request, ct: ct);
+        return result.IsFailure ? result.Error.ToResponse() : Ok();
     }
 }
