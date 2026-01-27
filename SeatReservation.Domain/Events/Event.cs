@@ -1,6 +1,8 @@
 ﻿// SeatReservation.Domain
 
+using CSharpFunctionalExtensions;
 using SeatReservation.Domain.Venues;
+using Shared;
 
 namespace SeatReservation.Domain.Events;
 
@@ -13,13 +15,27 @@ public class Event
     {
     }
 
-    public Event(EventId id, VenueId venueId, EventDetails details, string name, DateTime eventDate)
+    public Event(
+        EventId id,
+        VenueId venueId,
+        EventDetails details,
+        string name,
+        DateTime eventDate,
+        DateTime startDate,
+        DateTime endDate,
+        IEventInfo eventInfo,
+        EventType eventType)
     {
         Id = id;
         VenueId = venueId;
         Details = details;
         Name = name;
         EventDate = eventDate;
+        StartDate = startDate;
+        EndDate = endDate;
+        EventInfo = eventInfo;
+        EventType = eventType;
+        Status = EventStatus.PLANNED;
     }
 
     public EventId Id { get; private set; }
@@ -35,7 +51,99 @@ public class Event
 
     public DateTime EventDate { get; private set; }
 
+    public DateTime StartDate { get; private set; }
+
+    public DateTime EndDate { get; private set; }
+
+    public IEventInfo EventInfo { get; }
+
+    public EventType EventType { get; }
+
+    public EventStatus Status { get; private set; }
+
     public IEventInfo Info { get; private set; }
+
+    public bool isAvailableForReservation()
+    {
+        return Status == EventStatus.PLANNED && StartDate > DateTime.UtcNow;
+    }
+
+    private static Result<EventDetails, Error> Validate(
+        string name,
+        DateTime eventDate,
+        DateTime startDate,
+        DateTime endDate,
+        int capacity,
+        string description)
+    {
+        if (startDate >= endDate || startDate <= DateTime.UtcNow || endDate <= DateTime.UtcNow)
+        {
+            return Error.Validation("event.time", "The time of the event is indicated incorrectly");
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return Error.Validation("event.name", "Event name cannot be empty");
+        }
+
+        if (eventDate < DateTime.UtcNow)
+        {
+            return Error.Validation("event.date", "Event date cannot be in the past");
+        }
+
+        if (capacity <= 0)
+        {
+            return Error.Validation("event.capacity", "Capacity must be greater than zero");
+        }
+
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            return Error.Validation("event.description", "Description cannot be empty");
+        }
+
+        return new EventDetails(capacity, description);
+    }
+
+    public static Result<Event, Error> CreateConference(
+        VenueId venueId,
+        string name,
+        DateTime eventDate,
+        DateTime startDate,
+        DateTime endDate,
+        int capacity,
+        string description,
+        string speaker,
+        string topic)
+    {
+        var detailsResult = Validate(name, eventDate, startDate, endDate, capacity, description);
+        if (detailsResult.IsFailure)
+        {
+            return detailsResult.Error;
+        }
+
+        if (string.IsNullOrWhiteSpace(speaker))
+        {
+            return Error.Validation("event.speaker", "Speaker cannot be empty");
+        }
+
+        if (string.IsNullOrWhiteSpace(topic))
+        {
+            return Error.Validation("event.topic", "Topic cannot be empty");
+        }
+
+        var conferenceInfo = new ConferenceInfo(speaker, topic);
+
+        return new Event(
+            new EventId(Guid.NewGuid()),
+            venueId,
+            detailsResult.Value,
+            name,
+            eventDate,
+            startDate,
+            endDate,
+            conferenceInfo,
+            EventType.CONFERENCE);
+    }
 }
 
 public interface IEventInfo
@@ -64,4 +172,27 @@ public enum EventType
     /// Онлайн мероприятие
     /// </summary>
     ONLINE,
+}
+
+public enum EventStatus
+{
+    /// <summary>
+    /// Запланировано
+    /// </summary>
+    PLANNED,
+
+    /// <summary>
+    /// В процессе
+    /// </summary>
+    IN_PROGRESS,
+
+    /// <summary>
+    /// Завершено
+    /// </summary>
+    FINISHED,
+
+    /// <summary>
+    /// Отменено
+    /// </summary>
+    CANCELED,
 }

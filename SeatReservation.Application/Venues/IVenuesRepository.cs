@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using SeatReservation.Domain.Venues;
 using Shared;
 
-namespace SeatReservation.Application.DataBase;
+namespace SeatReservation.Application.Venues;
 
 public interface IVenuesRepository
 {

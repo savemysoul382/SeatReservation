@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SeatReservation.Domain.Events;
+using SeatReservation.Domain.Reservations;
 using SeatReservation.Domain.Venues;
 
 namespace SeatReservation.Infrastructure.Postgres
@@ -31,6 +33,10 @@ namespace SeatReservation.Infrastructure.Postgres
         public DbSet<Venue> Venues => Set<Venue>();
 
         public DbSet<Seat> Seats => Set<Seat>();
+
+        public DbSet<Reservation> Reservations => Set<Reservation>();
+
+        public DbSet<Event> Events => Set<Event>();
 
         private ILoggerFactory CreateLoggerFactory()
         {
