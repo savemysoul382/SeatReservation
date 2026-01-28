@@ -13,8 +13,8 @@ using SeatReservation.Infrastructure.Postgres;
 namespace SeatReservation.Infrastructure.Postgres.Migrations
 {
     [DbContext(typeof(ReservationServiceDbContext))]
-    [Migration("20260124105939_Venue")]
-    partial class Venue
+    [Migration("20260128093507_AddRowVersion")]
+    partial class AddRowVersion
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,9 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -42,6 +45,12 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -72,6 +81,15 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastReservationUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("EventId")
                         .HasName("pk_event_details");
@@ -111,6 +129,10 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("event_id");
+
                     b.Property<DateTime>("ReservedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -127,6 +149,9 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                     b.HasIndex("SeatId");
 
                     b.HasIndex("reservation_id");
+
+                    b.HasIndex("EventId", "SeatId")
+                        .IsUnique();
 
                     b.ToTable("reservation_seats", (string)null);
                 });
@@ -158,13 +183,14 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("seat_number");
 
-                    b.Property<Guid>("venue_id")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("VenueId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("venue_id");
 
                     b.HasKey("Id")
                         .HasName("pk_seats");
 
-                    b.HasIndex("venue_id");
+                    b.HasIndex("VenueId");
 
                     b.ToTable("seats", (string)null);
                 });
@@ -302,7 +328,7 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                 {
                     b.HasOne("SeatReservation.Domain.Venues.Venue", "Venue")
                         .WithMany("Seats")
-                        .HasForeignKey("venue_id")
+                        .HasForeignKey("VenueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

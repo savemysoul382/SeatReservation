@@ -23,7 +23,9 @@ public class EventsRepository : IEventsRepository
 
     public async Task<Result<Event, Error>> GetById(EventId eventId, CancellationToken ct)
     {
-        var @event = await _dbContext.Events.FirstOrDefaultAsync(e => e.Id == eventId, ct);
+        var @event = await _dbContext.Events
+            .Include(e => e.Details)
+            .FirstOrDefaultAsync(e => e.Id == eventId, ct);
         if (@event == null)
         {
             return Error.Failure("event.not.found", "Event not found");

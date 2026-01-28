@@ -46,4 +46,18 @@ public class ReservationsRepository : IReservationsRepository
 
         return hasReservedSeats;
     }
+
+    public async Task<int> GetReservedSeatsCount(Guid eventId, CancellationToken ct)
+    {
+        // блокировка (пессимистичная) значения для таблицы
+        // FOR UPDATE - другая транзакция ждет
+        // FOR UPDATE NOWAIT - другая транзакция получает ошибку сразу
+        // await _dbContext.Database.ExecuteSqlRawAsync(
+        // "SELECT capacity FROM events_details WHERE event_id = {0} FOR UPDATE", eventId, ct);
+        return await _dbContext.Reservations
+            .Where(r => r.EventId == eventId)
+            .Where(r => r.Status == ReservationStatus.CONFIRMED || r.Status == ReservationStatus.PENDING)
+            .SelectMany(r => r.ReservedSeats)
+            .CountAsync(ct);
+    }
 }

@@ -23,7 +23,8 @@ public class Reservation
         List<ReservationSeat> reservationSeats = seatIds.Select(seatId => new ReservationSeat(
             new ReservationSeatId(Guid.NewGuid()),
             this,
-            new SeatId(Value: seatId))).ToList();
+            new SeatId(Value: seatId),
+            eventId)).ToList();
         _reservedSeats = reservationSeats;
     }
 

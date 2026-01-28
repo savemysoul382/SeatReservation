@@ -33,8 +33,8 @@ public class Event
         EventDate = eventDate;
         StartDate = startDate;
         EndDate = endDate;
-        EventInfo = eventInfo;
-        EventType = eventType;
+        Info = eventInfo;
+        Type = eventType;
         Status = EventStatus.PLANNED;
     }
 
@@ -47,25 +47,21 @@ public class Event
 
     public string Name { get; private set; }
 
-    public EventType Type { get; private set; }
-
     public DateTime EventDate { get; private set; }
 
     public DateTime StartDate { get; private set; }
 
     public DateTime EndDate { get; private set; }
 
-    public IEventInfo EventInfo { get; }
-
-    public EventType EventType { get; }
+    public EventType Type { get; private set; }
 
     public EventStatus Status { get; private set; }
 
     public IEventInfo Info { get; private set; }
 
-    public bool isAvailableForReservation()
+    public bool IsAvailableForReservation(int capacitySum)
     {
-        return Status == EventStatus.PLANNED && StartDate > DateTime.UtcNow;
+        return Status == EventStatus.PLANNED && StartDate > DateTime.UtcNow && capacitySum <= this.Details.Capacity;
     }
 
     private static Result<EventDetails, Error> Validate(

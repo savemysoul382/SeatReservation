@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SeatReservation.Infrastructure.Postgres.Migrations
 {
     /// <inheritdoc />
-    public partial class NewInit : Migration
+    public partial class AddIndex2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -59,7 +59,12 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     venue_id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    EventDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    type = table.Column<string>(type: "text", nullable: false),
+                    EventDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Info = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,8 +83,8 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     venue_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    RowNumber = table.Column<int>(type: "integer", nullable: false),
-                    SeatNumber = table.Column<int>(type: "integer", nullable: false)
+                    row_number = table.Column<int>(type: "integer", nullable: false),
+                    seat_number = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -118,6 +123,7 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     reservation_id = table.Column<Guid>(type: "uuid", nullable: false),
                     seat_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    event_id = table.Column<Guid>(type: "uuid", nullable: false),
                     ReservedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -141,6 +147,12 @@ namespace SeatReservation.Infrastructure.Postgres.Migrations
                 name: "IX_events_venue_id",
                 table: "events",
                 column: "venue_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_reservation_seats_event_id_seat_id",
+                table: "reservation_seats",
+                columns: new[] { "event_id", "seat_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_reservation_seats_reservation_id",

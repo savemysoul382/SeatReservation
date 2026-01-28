@@ -1,6 +1,8 @@
 ﻿// SeatReservation.Infrastructure.Postgres
 
+using System.Data;
 using CSharpFunctionalExtensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using SeatReservation.Application.DataBase;
@@ -21,11 +23,11 @@ public class TransactionManager : ITransactionManager
         _loggerFactory = loggerFactory;
     }
 
-    public async Task<Result<ITransactionScope, Error>> BeginTransactionAsync(CancellationToken ct)
+    public async Task<Result<ITransactionScope, Error>> BeginTransactionAsync(CancellationToken ct = default, IsolationLevel? level = null)
     {
         try
         {
-            var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+            var transaction = await _dbContext.Database.BeginTransactionAsync(level ?? IsolationLevel.ReadCommitted, ct);
             var transactionScopeLogger = _loggerFactory.CreateLogger<TransactionScope>();
             var transactionScope = new TransactionScope(transaction.GetDbTransaction(), transactionScopeLogger);
 

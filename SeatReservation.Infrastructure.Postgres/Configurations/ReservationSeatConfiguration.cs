@@ -37,5 +37,10 @@ public class ReservationSeatConfiguration : IEntityTypeConfiguration<Reservation
             .HasConversion(r => r.Value, id => new SeatId(id))
             .HasColumnName("seat_id")
             .IsRequired();
+
+        // builder.Property(rs => rs.SeatId).HasColumnName("seat_id").IsRequired();
+        builder.Property(rs => rs.EventId).HasColumnName("event_id").IsRequired();
+
+        builder.HasIndex(rs => new { rs.EventId, rs.SeatId }).IsUnique();
     }
 }
