@@ -36,7 +36,9 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .IsRequired()
             .OnDelete(deleteBehavior: DeleteBehavior.Cascade);
 
-        builder.Property(e => e.Type).HasConversion<string>().HasColumnName("type");
+        builder.Property(e => e.Type)
+            .HasConversion<string>()
+            .HasColumnName("type");
 
         builder.Property(e => e.Info)
             .HasConversion(new EventInfoConverter());

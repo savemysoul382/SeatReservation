@@ -100,6 +100,41 @@ public class Event
         return new EventDetails(capacity, description);
     }
 
+    public static Result<Event, Error> CreateConcert(
+        VenueId venueId,
+        string name,
+        DateTime eventDate,
+        DateTime startDate,
+        DateTime endDate,
+        int capacity,
+        string description,
+        string performer)
+    {
+        var detailsResult = Validate(name, startDate, endDate, eventDate, capacity, description);
+        if (detailsResult.IsFailure)
+        {
+            return detailsResult.Error;
+        }
+
+        if (string.IsNullOrWhiteSpace(performer))
+        {
+            return Error.Validation("event.performer", "Performer cannot be empty");
+        }
+
+        var concertInfo = new ConcertInfo(performer);
+
+        return new Event(
+            new EventId(Guid.NewGuid()),
+            venueId,
+            detailsResult.Value,
+            name,
+            eventDate,
+            startDate,
+            endDate,
+            concertInfo,
+            EventType.CONCERT);
+    }
+
     public static Result<Event, Error> CreateConference(
         VenueId venueId,
         string name,
@@ -140,17 +175,67 @@ public class Event
             conferenceInfo,
             EventType.CONFERENCE);
     }
+
+    public static Result<Event, Error> CreateOnline(
+        VenueId venueId,
+        string name,
+        DateTime eventDate,
+        DateTime startDate,
+        DateTime endDate,
+        int capacity,
+        string description,
+        string url)
+    {
+        var detailsResult = Validate(name, eventDate, startDate, endDate, capacity, description);
+        if (detailsResult.IsFailure)
+        {
+            return detailsResult.Error;
+        }
+
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return Error.Validation("event.url", "URL cannot be empty");
+        }
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out _))
+        {
+            return Error.Validation("event.url", "URL is not valid");
+        }
+
+        var onlineInfo = new OnlineInfo(url);
+
+        return new Event(
+            new EventId(Guid.NewGuid()),
+            venueId,
+            detailsResult.Value,
+            name,
+            eventDate,
+            startDate,
+            endDate,
+            onlineInfo,
+            EventType.ONLINE);
+    }
 }
 
 public interface IEventInfo
 {
+    string ToString();
 }
 
-public record ConcertInfo(string Performer) : IEventInfo;
+public record ConcertInfo(string Performer) : IEventInfo
+{
+    public override string ToString() => $"Concert:{Performer}";
+}
 
-public record ConferenceInfo(string Topic, string Speaker) : IEventInfo;
+public record ConferenceInfo(string Topic, string Speaker) : IEventInfo
+{
+    public override string ToString() => $"Conference: {Topic}, Speaker: {Speaker}";
+}
 
-public record OnlineInfo(string Url) : IEventInfo;
+public record OnlineInfo(string Url) : IEventInfo
+{
+    public override string ToString() => $"Online: {Url}";
+};
 
 public enum EventType
 {

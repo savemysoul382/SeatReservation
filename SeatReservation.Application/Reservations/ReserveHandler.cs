@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using SeatReservation.Application.DataBase;
 using SeatReservation.Application.EventsFolder;
 using SeatReservation.Application.Seats;
-using SeatReservation.Contracts;
+using SeatReservation.Contracts.Reservations;
 using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Reservations;
 using SeatReservation.Domain.Venues;

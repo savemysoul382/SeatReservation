@@ -6,6 +6,7 @@ using SeatReservation.Application.Venues;
 using SeatReservation.Infrastructure.Postgres;
 using SeatReservation.Infrastructure.Postgres.Database;
 using SeatReservation.Infrastructure.Postgres.Repositories;
+using SeatReservation.Infrastructure.Postgres.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddScoped<UpdateVenueNameByPrefixHandler>();
 builder.Services.AddScoped<UpdateVenueSeatsHandler>();
 builder.Services.AddScoped<ReserveHandler>();
 builder.Services.AddScoped<ReserveAdjacentSeatsHandler>();
+builder.Services.AddScoped<GetByIdHandler>();
+
+builder.Services.AddScoped<ISeeder, ReservationSeeder>();
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
@@ -36,9 +40,15 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwaggerUI(op => op.SwaggerEndpoint("/openapi/v1.json", "AuthService"));
+
+    if (args.Contains("--seeding"))
+    {
+        await app.Services.RunSeeding();
+    }
 }
 
 // app.UseHttpsRedirection();
 // app.UseAuthorization();
 app.MapControllers();
+
 app.Run();

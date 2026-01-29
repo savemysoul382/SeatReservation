@@ -2,7 +2,7 @@
 
 using CSharpFunctionalExtensions;
 using SeatReservation.Application.DataBase;
-using SeatReservation.Contracts;
+using SeatReservation.Contracts.VenuesFolder;
 using SeatReservation.Domain.Venues;
 using Shared;
 

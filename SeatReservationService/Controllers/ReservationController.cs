@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SeatReservation.Application.Reservations;
-using SeatReservation.Contracts;
+using SeatReservation.Contracts.Reservations;
 
 namespace SeatReservationService.Controllers
 {

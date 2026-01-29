@@ -1,5 +1,5 @@
 ﻿// SeatReservation.Application
 
-namespace SeatReservation.Application.Venues;
+namespace SeatReservation.Contracts.Seats;
 
 public record CreateSeatRequest(int RowNumber, int SeatNumber);
