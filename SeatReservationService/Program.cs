@@ -25,6 +25,7 @@ builder.Services.AddScoped<UpdateVenueNameHandler>();
 builder.Services.AddScoped<UpdateVenueNameByPrefixHandler>();
 builder.Services.AddScoped<UpdateVenueSeatsHandler>();
 builder.Services.AddScoped<ReserveHandler>();
+builder.Services.AddScoped<ReserveAdjacentSeatsHandler>();
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();

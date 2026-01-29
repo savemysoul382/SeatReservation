@@ -21,7 +21,7 @@ public class ReservationsRepository : IReservationsRepository
         _logger = logger;
     }
 
-    public async Task<Result<Guid, Error>> Add(Reservation reservation)
+    public async Task<Result<Guid, Error>> Add(Reservation reservation, CancellationToken ct)
     {
         try
         {

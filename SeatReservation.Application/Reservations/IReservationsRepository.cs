@@ -9,7 +9,7 @@ namespace SeatReservation.Application.Reservations;
 
 public interface IReservationsRepository
 {
-    Task<Result<Guid, Error>> Add(Reservation reservation);
+    Task<Result<Guid, Error>> Add(Reservation reservation, CancellationToken ct = default);
 
     Task<bool> AnySeatsAlreadyReserved(Guid eventId, IEnumerable<SeatId> seatIds, CancellationToken ct);
 

@@ -21,17 +21,24 @@ public class EventsRepository : IEventsRepository
         _logger = logger;
     }
 
-    public async Task<Result<Event, Error>> GetById(EventId eventId, CancellationToken ct)
+    public async Task<Result<Event, Error>> GetByIdWithLock(EventId eventId, CancellationToken ct)
     {
         var @event = await _dbContext.Events
+            .FromSql($"SELECT * FROM events WHERE Id = {eventId.Value} FOR UPDATE")
             .Include(e => e.Details)
-            .FirstOrDefaultAsync(e => e.Id == eventId, ct);
-        if (@event == null)
-        {
-            return Error.Failure("event.not.found", "Event not found");
-        }
+            .FirstOrDefaultAsync(ct);
 
-        return @event;
+        return @event != null
+            ? @event
+            : Error.NotFound($"Event {eventId.Value} not found");
+        // var @event = await _dbContext.Events
+        //    .Include(e => e.Details)
+        //    .FirstOrDefaultAsync(e => e.Id == eventId, ct);
+        // if (@event == null)
+        // {
+        //    return Error.Failure("event.not.found", "Event not found");
+        // }
+        // return @event;
     }
 
     // минус такого подхода, что бизнес логика начинает просачиваться в репозиторий

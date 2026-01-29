@@ -46,7 +46,7 @@ public class ReserveHandler
 
         // 2. Доступно ли мероприятие для бронирования. Проверить даты, статус
         var eventId = new EventId(request.EventId);
-        var eventResult = await _eventsRepository.GetById(eventId, ct);
+        var eventResult = await _eventsRepository.GetByIdWithLock(eventId, ct);
         if (eventResult.IsFailure)
         {
             transactionScope.Rollback();

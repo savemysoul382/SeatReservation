@@ -14,5 +14,12 @@ namespace SeatReservationService.Controllers
             var result = await handler.Handle(request, ct);
             return result.IsSuccess ? Ok(result.Value) : result.Error.ToResponse();
         }
+
+        [HttpPost("/adjacent")]
+        public async Task<IActionResult> ReserveAdjacentSeats([FromBody] ReserveAdjacentSeatsRequest request, [FromServices] ReserveAdjacentSeatsHandler handler, CancellationToken ct)
+        {
+            var result = await handler.Handle(request, ct);
+            return result.IsSuccess ? Ok(result.Value) : result.Error.ToResponse();
+        }
     }
 }
