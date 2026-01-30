@@ -10,7 +10,7 @@ using SeatReservation.Domain.Reservations;
 using SeatReservation.Domain.Venues;
 using Shared;
 
-namespace SeatReservation.Application.Reservations;
+namespace SeatReservation.Application.Reservations.Commands;
 
 public class ReserveAdjacentSeatsHandler
 {

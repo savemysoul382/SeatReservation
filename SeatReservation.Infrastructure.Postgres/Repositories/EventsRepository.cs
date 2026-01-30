@@ -53,13 +53,4 @@ public class EventsRepository : IEventsRepository
 
         return @event;
     }
-
-    public async Task<Event?> GetById(EventId eventId, CancellationToken ct)
-    {
-        // отключаем ченджтрекер, для запросов он не нужен
-        return await _dbContext.Events
-            .Include(e => e.Details)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == eventId, ct);
-    }
 }

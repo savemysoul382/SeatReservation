@@ -6,7 +6,7 @@ using SeatReservation.Contracts.VenuesFolder;
 using SeatReservation.Domain.Venues;
 using Shared;
 
-namespace SeatReservation.Application.Venues;
+namespace SeatReservation.Application.Venues.Commands;
 
 public class CreateVenueHandler
 {

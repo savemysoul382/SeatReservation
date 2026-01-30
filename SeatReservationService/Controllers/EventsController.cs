@@ -3,6 +3,7 @@
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 using SeatReservation.Application.EventsFolder;
+using SeatReservation.Application.EventsFolder.Queries;
 using SeatReservation.Contracts.Events;
 using SeatReservation.Infrastructure.Postgres.Repositories;
 using EventId = SeatReservation.Domain.Events.EventId;
@@ -21,7 +22,14 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet("/{eventId:guid}")]
-    public async Task<ActionResult<GetEventDto>> GetById([FromRoute] Guid eventId, [FromServices] GetByIdHandler handler, CancellationToken ct)
+    public async Task<ActionResult<GetEventDto>> GetById([FromRoute] Guid eventId, [FromServices] GetEventByIdHandler handler, CancellationToken ct)
+    {
+        var result = await handler.Handle(new GetByIdRequest(eventId), ct);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("/{eventId:guid}/dapper")]
+    public async Task<ActionResult<GetEventDto>> GetByIdDapper([FromRoute] Guid eventId, [FromServices] GetByIdHandlerDapper handler, CancellationToken ct)
     {
         var result = await handler.Handle(new GetByIdRequest(eventId), ct);
         return result is null ? NotFound() : Ok(result);

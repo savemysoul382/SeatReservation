@@ -1,14 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SeatReservation.Application.DataBase;
 using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Reservations;
 using SeatReservation.Domain.Venues;
 
 namespace SeatReservation.Infrastructure.Postgres
 {
-    public class ReservationServiceDbContext : DbContext
+    public class ReservationServiceDbContext : DbContext, IReadDbContext
     {
         private readonly string _connectionString;
+        private IQueryable<Venue> _venuesRead;
+        private IQueryable<Seat> _seatsRead;
+        private IQueryable<Reservation> _reservationsRead;
+        private IQueryable<ReservationSeat> _reservationSeatsRead;
 
         public ReservationServiceDbContext(string connectionString)
         {
@@ -39,6 +44,17 @@ namespace SeatReservation.Infrastructure.Postgres
         public DbSet<ReservationSeat> ReservationSeats => Set<ReservationSeat>();
 
         public DbSet<Event> Events => Set<Event>();
+
+        // только для чтения
+        public IQueryable<Event> EventsRead => Set<Event>().AsQueryable().AsNoTracking();
+
+        public IQueryable<Venue> VenuesRead => Set<Venue>().AsQueryable().AsNoTracking();
+
+        public IQueryable<Seat> SeatsRead => Set<Seat>().AsQueryable().AsNoTracking();
+
+        public IQueryable<Reservation> ReservationsRead => Set<Reservation>().AsQueryable().AsNoTracking();
+
+        public IQueryable<ReservationSeat> ReservationSeatsRead => Set<ReservationSeat>().AsQueryable().AsNoTracking();
 
         private ILoggerFactory CreateLoggerFactory()
         {

@@ -1,6 +1,7 @@
 ﻿// SeatReservation.Domain
 
 using CSharpFunctionalExtensions;
+using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Venues;
 using Shared;
 
@@ -24,7 +25,7 @@ public class Reservation
             new ReservationSeatId(Guid.NewGuid()),
             this,
             new SeatId(Value: seatId),
-            eventId)).ToList();
+            new EventId(eventId))).ToList();
         _reservedSeats = reservationSeats;
     }
 

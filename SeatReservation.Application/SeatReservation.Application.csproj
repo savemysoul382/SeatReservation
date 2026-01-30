@@ -11,4 +11,17 @@
     <ProjectReference Include="..\SeatReservation.Domain\SeatReservation.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="EventsFolder\Commands\" />
+    <Folder Include="Reservations\Queries\" />
+    <Folder Include="Seats\Queries\" />
+    <Folder Include="Seats\Commands\" />
+    <Folder Include="Venues\Queries\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+  </ItemGroup>
+
 </Project>

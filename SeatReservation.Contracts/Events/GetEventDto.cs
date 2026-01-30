@@ -1,8 +1,10 @@
 ﻿// SeatReservation.Contracts
 
+using SeatReservation.Contracts.Seats;
+
 namespace SeatReservation.Contracts.Events;
 
-public class GetEventDto
+public record GetEventDto
 {
     public Guid Id { get; init; }
 
@@ -28,4 +30,6 @@ public class GetEventDto
     public string Status { get; init; } = string.Empty;
 
     public string Info { get; init; } = string.Empty;
+
+    public List<AvailableSeatDto> Seats { get; init; } = [];
 }

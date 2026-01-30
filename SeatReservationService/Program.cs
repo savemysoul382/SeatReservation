@@ -1,8 +1,11 @@
 ﻿using SeatReservation.Application.DataBase;
 using SeatReservation.Application.EventsFolder;
+using SeatReservation.Application.EventsFolder.Queries;
 using SeatReservation.Application.Reservations;
+using SeatReservation.Application.Reservations.Commands;
 using SeatReservation.Application.Seats;
 using SeatReservation.Application.Venues;
+using SeatReservation.Application.Venues.Commands;
 using SeatReservation.Infrastructure.Postgres;
 using SeatReservation.Infrastructure.Postgres.Database;
 using SeatReservation.Infrastructure.Postgres.Repositories;
@@ -13,7 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<ReservationServiceDbContext>(_ =>
     new ReservationServiceDbContext(builder.Configuration.GetConnectionString("ReservationServiceDb")!));
 
+builder.Services.AddScoped<IReadDbContext, ReservationServiceDbContext>(_ =>
+    new ReservationServiceDbContext(builder.Configuration.GetConnectionString("ReservationServiceDb")!));
+
 builder.Services.AddSingleton<IDbConnectionFactory, NpgSqlConnectionFactory>();
+Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+
 builder.Services.AddScoped<ITransactionManager, TransactionManager>();
 
 builder.Services.AddScoped<IVenuesRepository, VenuesRepository>();
@@ -27,7 +35,8 @@ builder.Services.AddScoped<UpdateVenueNameByPrefixHandler>();
 builder.Services.AddScoped<UpdateVenueSeatsHandler>();
 builder.Services.AddScoped<ReserveHandler>();
 builder.Services.AddScoped<ReserveAdjacentSeatsHandler>();
-builder.Services.AddScoped<GetByIdHandler>();
+builder.Services.AddScoped<GetEventByIdHandler>();
+builder.Services.AddScoped<GetByIdHandlerDapper>();
 
 builder.Services.AddScoped<ISeeder, ReservationSeeder>();
 

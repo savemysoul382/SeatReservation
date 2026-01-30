@@ -1,15 +1,14 @@
-﻿namespace SeatReservation.Domain
+﻿namespace SeatReservation.Domain;
+
+public class User
 {
-    public class User
+    public User()
     {
-        public User()
-        {
-        }
-
-        public Guid Id { get; set; }
-
-        public Details Details { get; set; }
     }
+
+    public Guid Id { get; set; }
+
+    public Details Details { get; set; }
 }
 
 public record Details

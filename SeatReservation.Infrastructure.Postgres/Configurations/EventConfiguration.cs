@@ -36,11 +36,27 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .IsRequired()
             .OnDelete(deleteBehavior: DeleteBehavior.Cascade);
 
+        builder.Property(e => e.Name)
+            .HasColumnName("name");
+
+        builder.Property(e => e.EventDate)
+            .HasColumnName("event_date");
+
+        builder.Property(e => e.StartDate)
+            .HasColumnName("start_date");
+
+        builder.Property(e => e.EndDate)
+            .HasColumnName("end_date");
+
+        builder.Property(e => e.Status)
+            .HasColumnName("status");
+
         builder.Property(e => e.Type)
             .HasConversion<string>()
             .HasColumnName("type");
 
         builder.Property(e => e.Info)
-            .HasConversion(new EventInfoConverter());
+            .HasConversion(new EventInfoConverter())
+            .HasColumnName("info");
     }
 }

@@ -18,6 +18,16 @@ public class EventDetailsConfiguration : IEntityTypeConfiguration<EventDetails>
             .HasConversion(v => v.Value, id => new EventId(id))
             .HasColumnName("event_id");
 
+
+        builder.Property(v => v.Capacity)
+            .HasColumnName("capacity");
+
+        builder.Property(v => v.Description)
+            .HasColumnName("description");
+
+        builder.Property(v => v.LastReservationUtc)
+            .HasColumnName("last_reservation_utc");
+
         builder
             .HasOne<Event>()
             .WithOne(e => e.Details)

@@ -1,5 +1,6 @@
 ﻿// SeatReservation.Domain
 
+using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Venues;
 
 namespace SeatReservation.Domain.Reservations;
@@ -8,7 +9,7 @@ public record ReservationSeatId(Guid Value);
 
 public class ReservationSeat
 {
-    public ReservationSeat(ReservationSeatId id, Reservation reservation, SeatId seatId, Guid eventId)
+    public ReservationSeat(ReservationSeatId id, Reservation reservation, SeatId seatId, EventId eventId)
     {
         Id = id;
         Reservation = reservation;
@@ -29,7 +30,7 @@ public class ReservationSeat
     public SeatId SeatId { get; private set; }
 
     // денормализация, но она тут нужна
-    public Guid EventId { get; private set; }
+    public EventId EventId { get; private set; }
 
     public DateTime ReservedAt { get; set; }
 }
