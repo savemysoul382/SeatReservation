@@ -6,6 +6,7 @@ using SeatReservation.Application.DataBase;
 using SeatReservation.Contracts.Events;
 using SeatReservation.Contracts.Seats;
 using SeatReservation.Domain.Events;
+using SeatReservation.Domain.Reservations;
 
 namespace SeatReservation.Application.EventsFolder.Queries;
 
@@ -22,42 +23,48 @@ public class GetEventByIdHandler
     {
         // V2
         var @event = await _readDbContext.EventsRead
-           .Include(e => e.Details)
-           .Where(e => e.Id == new EventId(query.EventId))
-           .Select(@event =>
-               new GetEventDto()
-               {
-                   Id = @event.Id.Value,
-                   Capacity = @event.Details.Capacity,
-                   Description = @event.Details.Description,
-                   LastReservationUtc = @event.Details.LastReservationUtc,
-                   VenueId = @event.VenueId.Value,
-                   Name = @event.Name,
-                   EventDate = @event.EventDate,
-                   StartDate = @event.StartDate,
-                   EndDate = @event.EndDate,
-                   Type = @event.Type.ToString(),
-                   Status = @event.Status.ToString(),
-                   Info = @event.Info.ToString(),
-                   Seats = (from s in _readDbContext.SeatsRead
-                            //where s.VenueId == e.VenueId
-                            join e in _readDbContext.EventsRead on s.VenueId equals @event.VenueId
-                            join rs in _readDbContext.ReservationSeatsRead
-                                on new { SeatId = s.Id, EventId = @event.Id } equals new { SeatId = rs.SeatId, EventId = rs.EventId }
-                                into reservation
-                            from r in reservation.DefaultIfEmpty()
-                            where @event.Id == new EventId(query.EventId)
-                            orderby s.RowNumber, s.SeatNumber
-                            select new AvailableSeatDto
-                            {
-                                Id = s.Id.Value,
-                                RowNumber = s.RowNumber,
-                                SeatNumber = s.SeatNumber,
-                                VenueId = s.VenueId.Value,
-                                IsAvailable = r == null,
-                            }).ToList(),
-               })
-           .FirstOrDefaultAsync(ct);
+            .Include(e => e.Details)
+            .Where(e => e.Id == new EventId(query.EventId))
+            .Select(@event =>
+                new GetEventDto()
+                {
+                    Id = @event.Id.Value,
+                    Capacity = @event.Details.Capacity,
+                    Description = @event.Details.Description,
+                    LastReservationUtc = @event.Details.LastReservationUtc,
+                    VenueId = @event.VenueId.Value,
+                    Name = @event.Name,
+                    EventDate = @event.EventDate,
+                    StartDate = @event.StartDate,
+                    EndDate = @event.EndDate,
+                    Type = @event.Type.ToString(),
+                    Status = @event.Status.ToString(),
+                    Info = @event.Info.ToString(),
+                    Seats = (from s in _readDbContext.SeatsRead
+                        where s.VenueId == @event.VenueId
+                        //join e in _readDbContext.EventsRead on s.VenueId equals @event.VenueId
+                        join rs in _readDbContext.ReservationSeatsRead
+                            on new { SeatId = s.Id, EventId = @event.Id } equals new { SeatId = rs.SeatId, EventId = rs.EventId }
+                            into reservation
+                        from r in reservation.DefaultIfEmpty()
+                        where @event.Id == new EventId(query.EventId)
+                        orderby s.RowNumber, s.SeatNumber
+                        select new AvailableSeatDto
+                        {
+                            Id = s.Id.Value,
+                            RowNumber = s.RowNumber,
+                            SeatNumber = s.SeatNumber,
+                            VenueId = s.VenueId.Value,
+                            IsAvailable = r == null,
+                        }).ToList(),
+                    TotalSeats = _readDbContext.SeatsRead.Count(s => s.VenueId == @event.VenueId),
+                    ReservedSeats = _readDbContext.ReservationSeatsRead.Count(rs => rs.EventId == @event.Id),
+                    AvailableSeats = _readDbContext.SeatsRead.Count(s => s.VenueId == @event.VenueId) -
+                                     _readDbContext.ReservationSeatsRead.Count(rs => rs.EventId == @event.Id &&
+                                                                                     (rs.Reservation.Status == ReservationStatus.CONFIRMED ||
+                                                                                      rs.Reservation.Status == ReservationStatus.PENDING)),
+                })
+            .FirstOrDefaultAsync(ct);
 
         return @event;
 
@@ -147,6 +154,9 @@ public class GetByIdHandlerDapper
                 e.info,
                 ed.capacity,
                 ed.description,
+                COUNT(*) OVER () as total_seats,
+                COUNT(rs.seat_id) OVER () as reserved_seats,
+                COUNT(*) OVER () - COUNT(rs.seat_id) OVER () as available_seats
                 s.id,
                 s.venue_id,
                 s.row_number,
@@ -156,10 +166,10 @@ public class GetByIdHandlerDapper
             JOIN events_details ed ON ed.event_id = e.id
             JOIN seats s ON e.venue_id = s.venue_id
             LEFT JOIN reservation_seats rs ON s.id = rs.seat_id AND rs.event_id = e.id
-            WHERE  e.id = @eventId
+            LEFT JOIN reservation r ON rs.reservation_id = r.id
             ORDER BY s.row_number, s.seat_number
             """,
-            param: new { eventId = query.EventId },
+            param: new {eventId = query.EventId},
             splitOn: "id",
             map: (eventDto, seatDto) =>
             {

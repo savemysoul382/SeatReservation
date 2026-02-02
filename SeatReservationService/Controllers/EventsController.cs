@@ -1,12 +1,10 @@
 ﻿// SeatReservationService
 
-using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 using SeatReservation.Application.EventsFolder;
 using SeatReservation.Application.EventsFolder.Queries;
 using SeatReservation.Contracts.Events;
 using SeatReservation.Infrastructure.Postgres.Repositories;
-using EventId = SeatReservation.Domain.Events.EventId;
 
 namespace SeatReservationService.Controllers;
 
@@ -33,5 +31,17 @@ public class EventsController : ControllerBase
     {
         var result = await handler.Handle(new GetByIdRequest(eventId), ct);
         return result is null ? NotFound() : Ok(result);
+    }
+
+    
+
+    [HttpGet]
+    public async Task<ActionResult<GetEventsDto>> GetById(
+        [FromQuery] GetEventsRequest request,
+        [FromServices] GetEventsHandler handler,
+        CancellationToken ct)
+    {
+        var result = await handler.Handle(request, ct);
+        return Ok(result);
     }
 }
