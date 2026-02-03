@@ -34,7 +34,7 @@ public class SeatsRepository : ISeatsRepository
             .Where(s => _dbContext.ReservationSeats
                 .Any(rs =>
                     rs.SeatId == s.Id &&
-                    rs.EventId == eventId.Value &&
+                    rs.EventId.Value == eventId.Value &&
                     (rs.Reservation.Status == ReservationStatus.CONFIRMED || rs.Reservation.Status == ReservationStatus.PENDING)) == false)
             .ToListAsync(ct);
 

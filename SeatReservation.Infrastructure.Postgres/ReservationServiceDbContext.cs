@@ -10,10 +10,6 @@ namespace SeatReservation.Infrastructure.Postgres
     public class ReservationServiceDbContext : DbContext, IReadDbContext
     {
         private readonly string _connectionString;
-        private IQueryable<Venue> _venuesRead;
-        private IQueryable<Seat> _seatsRead;
-        private IQueryable<Reservation> _reservationsRead;
-        private IQueryable<ReservationSeat> _reservationSeatsRead;
 
         public ReservationServiceDbContext(string connectionString)
         {

@@ -42,7 +42,7 @@ public class GetEventByIdHandler
                     Info = @event.Info.ToString(),
                     Seats = (from s in _readDbContext.SeatsRead
                         where s.VenueId == @event.VenueId
-                        //join e in _readDbContext.EventsRead on s.VenueId equals @event.VenueId
+                        // join e in _readDbContext.EventsRead on s.VenueId equals @event.VenueId
                         join rs in _readDbContext.ReservationSeatsRead
                             on new { SeatId = s.Id, EventId = @event.Id } equals new { SeatId = rs.SeatId, EventId = rs.EventId }
                             into reservation
@@ -169,7 +169,7 @@ public class GetByIdHandlerDapper
             LEFT JOIN reservation r ON rs.reservation_id = r.id
             ORDER BY s.row_number, s.seat_number
             """,
-            param: new {eventId = query.EventId},
+            param: new { eventId = query.EventId },
             splitOn: "id",
             map: (eventDto, seatDto) =>
             {

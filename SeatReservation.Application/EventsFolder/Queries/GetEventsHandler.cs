@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using SeatReservation.Application.DataBase;
 using SeatReservation.Contracts.Events;
 using SeatReservation.Domain.Reservations;
-using SeatReservation.Domain.Venues;
 
 namespace SeatReservation.Application.EventsFolder.Queries;
 
@@ -62,7 +61,7 @@ public class GetEventsHandler
                 >= query.MinAvailableSeats.Value);
         }
 
-        eventsQuery = eventsQuery.OrderBy(e => e.EndDate);
+        eventsQuery = eventsQuery.OrderByDescending(e => e.EndDate);
 
         var totalCount = await eventsQuery.LongCountAsync(ct);
 
@@ -71,7 +70,7 @@ public class GetEventsHandler
             .Take(query.Pagination.PageSize);
 
         var events = await eventsQuery
-            .Select(e => new EvetDto
+            .Select(e => new EventDto
             {
                 Id = e.Id.Value,
                 Capacity = e.Details.Capacity,

@@ -10,7 +10,6 @@ public class EventDetails
         Description = description;
     }
 
-
     // EF Core ctor
     private EventDetails()
     {

@@ -33,12 +33,20 @@ public class EventsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    
-
     [HttpGet]
     public async Task<ActionResult<GetEventsDto>> GetById(
         [FromQuery] GetEventsRequest request,
         [FromServices] GetEventsHandler handler,
+        CancellationToken ct)
+    {
+        var result = await handler.Handle(request, ct);
+        return Ok(result);
+    }
+
+    [HttpGet("dapper")]
+    public async Task<ActionResult<GetEventsDto>> GetDapper(
+        [FromQuery] GetEventsRequest request,
+        [FromServices] GetEventsHandlerDapper handler,
         CancellationToken ct)
     {
         var result = await handler.Handle(request, ct);

@@ -4,9 +4,9 @@ using SeatReservation.Contracts.Seats;
 
 namespace SeatReservation.Contracts.Events;
 
-public record GetEventsDto(List<EvetDto> Events, long TotalCount);
+public record GetEventsDto(List<EventDto> Events, long TotalCount);
 
-public record EvetDto
+public record EventDto
 {
     public Guid Id { get; init; }
 

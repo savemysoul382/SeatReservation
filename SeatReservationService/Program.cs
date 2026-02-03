@@ -38,6 +38,7 @@ builder.Services.AddScoped<ReserveAdjacentSeatsHandler>();
 builder.Services.AddScoped<GetEventByIdHandler>();
 builder.Services.AddScoped<GetByIdHandlerDapper>();
 builder.Services.AddScoped<GetEventsHandler>();
+builder.Services.AddScoped<GetEventsHandlerDapper>();
 
 builder.Services.AddScoped<ISeeder, ReservationSeeder>();
 
