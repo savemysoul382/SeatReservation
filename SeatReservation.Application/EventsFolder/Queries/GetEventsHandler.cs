@@ -1,8 +1,10 @@
 ﻿// SeatReservationService
 
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using SeatReservation.Application.DataBase;
 using SeatReservation.Contracts.Events;
+using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Reservations;
 
 namespace SeatReservation.Application.EventsFolder.Queries;
@@ -61,7 +63,23 @@ public class GetEventsHandler
                 >= query.MinAvailableSeats.Value);
         }
 
-        eventsQuery = eventsQuery.OrderByDescending(e => e.EndDate);
+        Expression<Func<Event, object>> keySelector = query.SortBy.ToLower() switch
+        {
+            "date" => e => e.EventDate,
+            "name" => e => e.Name,
+            "status" => e => e.Status,
+            "type" => e => e.Type,
+            "popularity" => e => (double)_readDbContext.ReservationSeatsRead
+                .Count(rs => rs.EventId == e.Id && (rs.Reservation.Status == ReservationStatus.CANCELED
+                                                    || rs.Reservation.Status == ReservationStatus.PENDING))
+            / _readDbContext.SeatsRead.Count(s => s.VenueId == e.VenueId) * 100.0,
+            _ => e => e.EventDate,
+        };
+
+
+        eventsQuery = query.SortDirection == "asc"
+            ? eventsQuery.OrderBy(keySelector)
+            : eventsQuery.OrderByDescending(keySelector);
 
         var totalCount = await eventsQuery.LongCountAsync(ct);
 
@@ -70,6 +88,9 @@ public class GetEventsHandler
             .Take(query.Pagination.PageSize);
 
         var events = await eventsQuery
+            .Include(e => e.Details)
+
+            // V1
             .Select(e => new EventDto
             {
                 Id = e.Id.Value,
@@ -85,14 +106,55 @@ public class GetEventsHandler
                 Status = e.Status.ToString(),
                 Info = e.Info.ToString(),
                 TotalSeats = _readDbContext.SeatsRead.Count(s => s.VenueId == e.VenueId),
-                ReservedSeats = _readDbContext.ReservationSeatsRead.Count(rs => rs.EventId == e.Id),
+                ReservedSeats = _readDbContext.ReservationSeatsRead.Count(rs => rs.EventId == e.Id &&
+                                                                                (rs.Reservation.Status == ReservationStatus.CONFIRMED || rs.Reservation.Status == ReservationStatus.PENDING)),
                 AvailableSeats = _readDbContext.SeatsRead.Count(s => s.VenueId == e.VenueId) -
                                  _readDbContext.ReservationSeatsRead.Count(rs => rs.EventId == e.Id &&
                                                                                  (rs.Reservation.Status == ReservationStatus.CONFIRMED ||
                                                                                   rs.Reservation.Status == ReservationStatus.PENDING)),
+#pragma warning disable SA1413
+                PopularityPercentage = Math.Round(
+                    (double)_readDbContext.ReservationSeatsRead
+                        .Count(rs => rs.EventId == e.Id && (rs.Reservation.Status == ReservationStatus.CANCELED
+                                                            || rs.Reservation.Status == ReservationStatus.PENDING)) /
+                    _readDbContext.SeatsRead.Count(s => s.VenueId == e.VenueId) * 100.0, 2),
+#pragma warning restore SA1413
             })
             .ToListAsync(ct);
 
         return new GetEventsDto(events, totalCount);
+        // V2 сортировка в памяти, но не можем из-за  невозможности сортировки по популярности, она не досутпна
+        //    .Select(e => new
+        //    {
+        //        Event = e,
+        //        TotalSeats = _readDbContext.SeatsRead.Count(s => s.VenueId == e.VenueId),
+        //        ReservedSeats = _readDbContext.ReservationSeatsRead.Count(rs => rs.EventId == e.Id &&
+        //                                                                        (rs.Reservation.Status == ReservationStatus.CONFIRMED || rs.Reservation.Status == ReservationStatus.PENDING)),
+        //    })
+        //    .ToListAsync(ct);
+
+        //return new GetEventsDto(
+        //    events.Select(e => new EventDto
+        //    {
+        //        Id = e.Event.Id.Value,
+        //        Capacity = e.Event.Details.Capacity,
+        //        Description = e.Event.Details.Description,
+        //        LastReservationUtc = e.Event.Details.LastReservationUtc,
+        //        VenueId = e.Event.VenueId.Value,
+        //        Name = e.Event.Name,
+        //        EventDate = e.Event.EventDate,
+        //        StartDate = e.Event.StartDate,
+        //        EndDate = e.Event.EndDate,
+        //        Type = e.Event.Type.ToString(),
+        //        Status = e.Event.Status.ToString(),
+        //        Info = e.Event.Info.ToString(),
+        //        TotalSeats = e.TotalSeats,
+        //        ReservedSeats = e.ReservedSeats,
+        //        AvailableSeats = e.TotalSeats - e.ReservedSeats,
+        //        PopularityPercentage = e.TotalSeats == 0
+        //            ? 0.0
+        //            : Math.Round((double)e.ReservedSeats / e.TotalSeats * 100.0, 2),
+        //    }).ToList(),
+        //    totalCount);
     }
 }

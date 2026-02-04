@@ -83,46 +83,105 @@ public class GetEventsHandlerDapper
             ? "WHERE " + string.Join(" AND ", conditions)
             : string.Empty;
 
+        var direction = query.SortDirection?.ToLower() == "asc" ? "ASC" : "DESC";
+
+        var orderByField = query.SortBy?.ToLower() switch
+        {
+            "date" => "event_date",
+            "name" => "name",
+            "status" => "status",
+            "type" => "type",
+            "popularity" => "popularity_percentage",
+            _ => "event_date"
+        };
+
+        var orderByClause = $"ORDER BY {orderByField} {direction}"; // можно включить еще поле e.event_date
+
         long? totalCount = null;
 
-        var sql = $"""
-                   SELECT  
-                   e.id,
-                   e.venue_id,
-                   e.name,
-                   e.type,
-                   e.event_date,
-                   e.start_date,
-                   e.end_date,
-                   e.status,
-                   e.info,
-                   ed.capacity,
-                   ed.description,
-                   (SELECT COUNT(*) FROM seats
-                     WHERE s.venue_id = e.venue_id) as total_seats,
-                     
-                   ( SELECT COUNT(*) FROM reservation_seats rs
-                     JOIN reservations r ON rs.reservation_id = r.id
-                     WHERE rs.events_id = e.id
-                     WHERE r.status IN ('Confirmed', 'Pending') ) as reserved_seats,
-                    () as available_seats,
+        var sql = """
+                  WITH event_stats AS (
+                  SELECT  
+                  e.id,
+                  e.venue_id,
+                  e.name,
+                  e.type,
+                  e.event_date,
+                  e.start_date,
+                  e.end_date,
+                  e.status,
+                  e.info,
+                  ed.capacity,
+                  ed.description,
+                  (SELECT COUNT(*) FROM seats
+                    WHERE s.venue_id = e.venue_id) as total_seats,
+                    
+                  ( SELECT COUNT(*) FROM reservation_seats rs
+                    JOIN reservations r ON rs.reservation_id = r.id
+                    WHERE rs.events_id = e.id
+                    WHERE r.status IN ('Confirmed', 'Pending') ) as reserved_seats,
+                   () as available_seats
 
-                   ( (SELECT COUNT(*) FROM seats
-                   WHERE s.venue_id = e.venue_id) -
-                   ( SELECT COUNT(*) FROM reservation_seats rs
-                   JOIN reservations r ON rs.reservation_id = r.id
-                   WHERE rs.events_id = e.id
-                   WHERE r.status IN ('Confirmed', 'Pending') ) ) as available_seats,
+                  COUNT(*) OVER() AS total_count
+                  FROM events e
+                  JOIN events_details ON e.id = ed.event_id 
+                  {whereClause} )
+                  SELECT 
+                  id,
+                  venue_id,
+                  name,
+                  type,
+                  event_date,
+                  start_date,
+                  end_date,
+                  status,
+                  info,
+                  capacity,
+                  description,
+                  total_seats - reserved_seats as available_seats,
+                  ROUND(reserved_seats::decimal / total_seats * 100, 2) AS popularity_percentage,
+                  total_count
+                  FROM event_stats
+                  ORDER BY popularity_percentage, event_date
+                  {orderByClause}
+                  LIMIT @pageSize OFFSET @offset
+                  """;
 
-                   COUNT(*) OVER() AS total_count
-                   FROM events e
-                   JOIN events_details ON e.id = ed.event_id
-                   -- JOIN seats s ON s.venue_id = e.venue_id
-                   {whereClause}
-                   ORDER BY e.event_date DESC
-                   LIMIT @pageSize OFFSET @offset
-                   """;
-
+        // V1
+        // var sql = $"""
+        //           SELECT
+        //           e.id,
+        //           e.venue_id,
+        //           e.name,
+        //           e.type,
+        //           e.event_date,
+        //           e.start_date,
+        //           e.end_date,
+        //           e.status,
+        //           e.info,
+        //           ed.capacity,
+        //           ed.description,
+        //           (SELECT COUNT(*) FROM seats
+        //             WHERE s.venue_id = e.venue_id) as total_seats,
+        //           ( SELECT COUNT(*) FROM reservation_seats rs
+        //             JOIN reservations r ON rs.reservation_id = r.id
+        //             WHERE rs.events_id = e.id
+        //             WHERE r.status IN ('Confirmed', 'Pending') ) as reserved_seats,
+        //            () as available_seats,
+        //           ( (SELECT COUNT(*) FROM seats
+        //           WHERE s.venue_id = e.venue_id) -
+        //           ( SELECT COUNT(*) FROM reservation_seats rs
+        //           JOIN reservations r ON rs.reservation_id = r.id
+        //           WHERE rs.events_id = e.id
+        //           WHERE r.status IN ('Confirmed', 'Pending') ) ) as available_seats,
+        //           COUNT(*) OVER() AS total_count
+        //           FROM events e
+        //           JOIN events_details ON e.id = ed.event_id
+        //           -- JOIN seats s ON s.venue_id = e.venue_id
+        //           {whereClause}
+        //           {orderByClause}
+        //           LIMIT @pageSize OFFSET @offset
+        //           """;
         var events = await connection
             .QueryAsync<EventDto, long, EventDto>(
                 sql: sql,
