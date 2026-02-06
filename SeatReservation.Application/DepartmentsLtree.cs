@@ -26,6 +26,8 @@ public record DepartmentDto
     public DateTime UpdatedAt { get; }
 
     public List<DepartmentDto> Children { get; set; } = [];
+
+    public bool HasMoreChildren { get; set; }
 }
 
 public class DepartmentsLTree
@@ -104,7 +106,7 @@ public class DepartmentsLTree
                                  )
                                  """;
 
-        var departmentRaws = (await connection.QueryAsync<DepartmentDto>(dapperSql, new { rootPath })).ToList();
+        var departmentRaws = (await connection.QueryAsync<DepartmentDto>(dapperSql, new {rootPath})).ToList();
 
         var departmentsDict = departmentRaws.ToDictionary(d => d.Id);
         var roots = new List<DepartmentDto>();
@@ -148,7 +150,7 @@ public class DepartmentsLTree
                                             AND nlevel(path) <= nlevel(@rootPath::ltree) + @depth
                                      """;
 
-        var departmentRaws = (await connection.QueryAsync<DepartmentDto>(ltreeDepthSql, new { rootPath })).ToList();
+        var departmentRaws = (await connection.QueryAsync<DepartmentDto>(ltreeDepthSql, new {rootPath})).ToList();
         var departmentsDict = departmentRaws.ToDictionary(d => d.Id);
         var roots = new List<DepartmentDto>();
 
@@ -173,11 +175,151 @@ public class DepartmentsLTree
 
         // ltree дочерних элементов у узла
         const string ltreeDeleteSql = """
-                                     DELETE FROM departments
-                                     WHERE path <@ @rootPath::ltree AND path != @rootPath::ltree
-                                     """;
-        var affected = await connection.ExecuteAsync(ltreeDeleteSql, new { rootPath });
-      
+                                      DELETE FROM departments
+                                      WHERE path <@ @rootPath::ltree AND path != @rootPath::ltree
+                                      """;
+        var affected = await connection.ExecuteAsync(ltreeDeleteSql, new {rootPath});
+
+        return affected;
+    }
+
+    // Получить корневые подразделения и несколько дочерних первого уровня из каждого корневого подразделения
+    // чтобы постепенно раскрывать дерево на клиенте.
+    public async Task<int> GetSubtreeQuery(int rootLimit, int offset, int childLimit)
+    {
+        var connection = await _connectionFactory.CreateConnectionAsync();
+
+        // корневые подразделения с пагинацией
+        const string getRootsSql = """
+                                   -- родительские подразделения
+                                   WITH roots AS (
+                                      SELECT
+                                      id,
+                                      parent_id,
+                                      name,
+                                      identifier,
+                                      path,
+                                      depth,
+                                      is_active,
+                                      created_at,
+                                      updated_at
+                                      FROM departments d
+                                      WHERE d.parent_id IS NULL
+                                      ORDER BY created_at
+                                      OFFSET @offset LIMIT @root_limit
+                                      )
+                                      -- получаем родительские подразделения
+                                      SELECT *, (EXIST(
+                                                     SELECT 1 
+                                                     FROM deparments
+                                                     WHERE parent_id = roots.id 
+                                                     OFFSET @child_limit
+                                                     LIMIT 1)) AS has_more_children true
+                                      FROM roots
+                                      
+                                      UNION ALL
+                                      
+                                      -- дочерние
+                                      SELECT c.*, (EXIST(
+                                                            SELECT 1 
+                                                            FROM deparments
+                                                            WHERE parent_id = c.id 
+                                                            )) AS has_more_children true
+                                      FROM roots r
+                                      CROSS JOIN LATERAL (
+                                      SELECT
+                                        id,
+                                        parent_id,
+                                        name,
+                                        identifier,
+                                        path,
+                                        depth,
+                                        is_active,
+                                        created_at,
+                                        updated_at
+                                     FROM departments d
+                                     WHERE d.parent_id = r.id AND d.is_active = true
+                                     ORDER BY d.created_at
+                                     LIMIT @child_limit
+                                      ) AS c
+                                   """;
+
+        // через оконную функцию
+        const string getRootsWindowSql = """
+                                         WITH roots AS (
+                                         SELECT
+                                         d.id,
+                                         d.parent_id,
+                                         d.name,
+                                         d.identifier,
+                                         d.path,
+                                         d.depth,
+                                         d.is_active,
+                                         d.created_at,
+                                         d.updated_at
+                                         FROM departments d
+                                         WHERE d.parent_id IS NULL
+                                         ORDER BY d.created_at
+                                         OFFSET @offset LIMIT @root_limit
+                                         ),
+                                         
+                                         ranked_children AS ( 
+                                         SELECT 
+                                         d.id,
+                                         d.parent_id,
+                                         d.name,
+                                         d.identifier,
+                                         d.path,
+                                         d.depth,
+                                         d.is_active,
+                                         d.created_at,
+                                         d.updated_at
+                                         ROW_NUMBER() OVER (PARTITION BY parent_id ORDER BY created_at) AS child_rank
+                                         FROM departments d
+                                         JOIN roots r ON d.parent_id = r.id
+                                         WHERE d.is_active = true
+                                         )
+                                         
+                                         SELECT
+                                         r.id
+                                         r.parent_id,
+                                         r.name,
+                                         r.identifier,
+                                         r.path,
+                                         r.depth,
+                                         r.is_active,
+                                         r.created_at,
+                                         r.updated_at,
+                                         (EXIST(
+                                         SELECT 1 
+                                         FROM deparments
+                                         WHERE parent_id = roots.id 
+                                         OFFSET @child_limit
+                                         LIMIT 1)) AS has_more_children true
+                                         FROM roots r
+                                         
+                                         UNION ALL
+                                         
+                                         SELECT
+                                         rc.id
+                                         rc.parent_id,
+                                         rc.name,
+                                         rc.identifier,
+                                         rc.path,
+                                         rc.depth,
+                                         rc.is_active,
+                                         rc.created_at,
+                                         rc.updated_at,
+                                         (EXIST(
+                                         SELECT 1 
+                                         FROM deparments
+                                         WHERE parent_id = c.id 
+                                         )) AS has_more_children true
+                                         FROM ranked_children rc
+                                         WHERE rc.child_rank <= @child_limit
+                                         """;
+        var affected = await connection.ExecuteAsync(getRootsSql, new { rootLimit, offset, childLimit });
+
         return affected;
     }
 }
