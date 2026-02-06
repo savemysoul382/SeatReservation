@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SeatReservation.Application.DataBase;
+using SeatReservation.Domain;
 using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Reservations;
 using SeatReservation.Domain.Venues;
@@ -27,6 +28,14 @@ namespace SeatReservation.Infrastructure.Postgres
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DepartmentLocation>(entity =>
+            {
+                entity.HasNoKey(); // разрешает отсутствие PK
+
+                // entity.ToView("DepartmentLocations"); // опционально: привязка к VIEW
+            });
+
+            // modelBuilder.HasPostgresExtension("ltree");
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ReservationServiceDbContext).Assembly);
             modelBuilder.Entity<Venue>();
         }

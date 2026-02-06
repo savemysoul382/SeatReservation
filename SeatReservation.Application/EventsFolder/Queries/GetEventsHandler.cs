@@ -123,6 +123,7 @@ public class GetEventsHandler
             .ToListAsync(ct);
 
         return new GetEventsDto(events, totalCount);
+
         // V2 сортировка в памяти, но не можем из-за  невозможности сортировки по популярности, она не досутпна
         //    .Select(e => new
         //    {
@@ -133,7 +134,7 @@ public class GetEventsHandler
         //    })
         //    .ToListAsync(ct);
 
-        //return new GetEventsDto(
+        // return new GetEventsDto(
         //    events.Select(e => new EventDto
         //    {
         //        Id = e.Event.Id.Value,
