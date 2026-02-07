@@ -28,6 +28,7 @@ public class SeatsRepository : ISeatsRepository
 
     public async Task<IReadOnlyList<Seat>> GetAvailableSeats(VenueId venueId, EventId eventId, int? rowNumber, CancellationToken ct)
     {
+        // optimistic. RowNumber
         var seats = await _dbContext.Seats
             .Where(s => s.VenueId == venueId)
             .Where(s => rowNumber.HasValue && s.RowNumber == rowNumber.Value)
@@ -38,6 +39,7 @@ public class SeatsRepository : ISeatsRepository
                     (rs.Reservation.Status == ReservationStatus.CONFIRMED || rs.Reservation.Status == ReservationStatus.PENDING)) == false)
             .ToListAsync(ct);
 
+        // можно сделать индекс (venue_id, row_number, seat_number)
         return seats;
     }
 }

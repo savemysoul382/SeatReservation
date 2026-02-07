@@ -44,6 +44,7 @@ public class ReservationsRepository : IReservationsRepository
             .Where(r => r.ReservedSeats.Any(rs => seatIds.Contains(rs.SeatId)))
             .AnyAsync(ct);
 
+        // можно сделать индекс в табл. reservation_seats (reservation_id, seat_id)
         return hasReservedSeats;
     }
 

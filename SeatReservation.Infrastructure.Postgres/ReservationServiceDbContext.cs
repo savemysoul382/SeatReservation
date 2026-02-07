@@ -28,6 +28,8 @@ namespace SeatReservation.Infrastructure.Postgres
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ReservationServiceDbContext).Assembly);
+
+            // modelBuilder.HasPostgresExtension("pg_trgm");
             modelBuilder.Entity<Venue>();
         }
 

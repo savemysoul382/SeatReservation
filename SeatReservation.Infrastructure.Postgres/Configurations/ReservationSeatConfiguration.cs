@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SeatReservation.Domain.Events;
 using SeatReservation.Domain.Reservations;
 using SeatReservation.Domain.Venues;
 
@@ -18,6 +19,9 @@ public class ReservationSeatConfiguration : IEntityTypeConfiguration<Reservation
         builder.Property(v => v.Id)
             .HasConversion(v => v.Value, id => new ReservationSeatId(id))
             .HasColumnName("id");
+
+        builder.Property(rs => rs.ReservedAt)
+            .HasColumnName("reserved_at");
 
         builder
             .HasOne(rs => rs.Reservation)
@@ -38,9 +42,19 @@ public class ReservationSeatConfiguration : IEntityTypeConfiguration<Reservation
             .HasColumnName("seat_id")
             .IsRequired();
 
-        // builder.Property(rs => rs.SeatId).HasColumnName("seat_id").IsRequired();
-        builder.Property(rs => rs.EventId).HasColumnName("event_id").IsRequired();
+        builder.Property(rs => rs.EventId)
+            .HasConversion(r => r.Value, id => new EventId(id))
+            .HasColumnName("event_id")
+            .IsRequired();
 
-        builder.HasIndex(rs => new { rs.EventId, rs.SeatId }).IsUnique();
+        builder.HasIndex(rs => new
+        {
+            rs.EventId, rs.SeatId,
+        }).IsUnique();
+
+        // можно сделать индекс в табл. reservation_seats (reservation_id, seat_id)
+
+        // создать в пустой миграции sql
+        // CREATE INDEX idx_reservation_seats_event_id_reservation_id ON reservation_seats (event_id, reservation_id);
     }
 }

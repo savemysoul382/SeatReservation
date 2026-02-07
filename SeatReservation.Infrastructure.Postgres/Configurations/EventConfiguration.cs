@@ -49,6 +49,7 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .HasColumnName("end_date");
 
         builder.Property(e => e.Status)
+            .HasConversion<string>()
             .HasColumnName("status");
 
         builder.Property(e => e.Type)
@@ -58,5 +59,19 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(e => e.Info)
             .HasConversion(new EventInfoConverter())
             .HasColumnName("info");
+
+        builder.HasIndex(e => e.EventDate);
+
+        builder.HasIndex(e => e.StartDate);
+
+        builder.HasIndex(e => e.EndDate);
+
+        // ускорить поиск по ILIKE, лучше добавлять через пустую миграцию
+        // builder.HasIndex(e => e.Name)
+        //    .HasDatabaseName("ix_events_name_trgm")
+        //    .HasMethod("gin")
+        //    .HasOperators("gin_trgm_ops");
+
+        // builder.HasIndex(e => e.Status).HasFilter("status IN ('Confirmed', 'Pending')");
     }
 }

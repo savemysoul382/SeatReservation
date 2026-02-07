@@ -13,10 +13,10 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
     {
         builder.ToTable("reservations");
 
-        builder.HasKey(v => v.Id).HasName("pk_reservations");
+        builder.HasKey(r => r.Id).HasName("pk_reservations");
 
-        builder.Property(v => v.Id)
-            .HasConversion(v => v.Value, id => new ReservationId(id))
+        builder.Property(r => r.Id)
+            .HasConversion(r => r.Value, id => new ReservationId(id))
             .HasColumnName("id");
 
         builder.Property(r => r.EventId)
@@ -24,5 +24,17 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
 
         builder.Property(r => r.UserId)
             .HasColumnName("user_id");
+
+        builder.Property(r => r.Status)
+            .HasConversion<string>()
+            .HasColumnName("status");
+
+        builder.Property(r => r.CreatedAt)
+            .HasColumnName("created_at");
+
+        builder.HasIndex(r => new
+        {
+            r.EventId, r.Status,
+        }).HasFilter("status IN ('CONFIRMED', 'PENDING')");
     }
 }

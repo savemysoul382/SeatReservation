@@ -179,6 +179,9 @@ public class GetByIdHandlerDapper
                 return getEventDto;
             });
 
+        // сделать индекс по venue_id и row_number, seat_number, тк часто будем искать и сортировать
+        string idx = "CREATE INDEX ix_seats_venue_row_num ON seats (venue_id, row_number, seat_number)"; // USING btree - он по умолчанию
+
         return events.FirstOrDefault();
     }
 }

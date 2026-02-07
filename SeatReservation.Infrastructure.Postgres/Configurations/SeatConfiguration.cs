@@ -30,5 +30,21 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
         builder.Property(v => v.SeatNumber)
            .IsRequired()
            .HasColumnName("seat_number");
+
+        builder.HasIndex(s => new
+        {
+            s.VenueId, s.RowNumber, s.SeatNumber,
+        });
+
+        // с фильтрами. Если делать с ComplexProperty - то так не получиться сделать.
+        // Нужно делать пустую миграцию и в up-dawn писать вручную sql на создание индекса с фильтром.
+        // migrationBuilder.Sql("CREATE INDEX IF NOT EXIST idx_seats_venue_id_row_number_seat_number ON seats(event_id, row_id, seat_id);")
+        // в down написать DROP INDEX...
+        // builder.HasIndex(s => new
+        // {
+        //    s.VenueId,
+        //    s.RowNumber,
+        //    s.SeatNumber,
+        // }).HasFilter("row_number > 0 AND seat_number > 0");
     }
 }
